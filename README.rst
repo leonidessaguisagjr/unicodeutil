@@ -13,6 +13,8 @@ Python 3.3 and newer has ``str.casefold()`` already built in.  This is my attemp
 
 A bit more information about how I put this together on my `blog <http://www.leonidessaguisagjr.name/?p=231>`_.
 
+By default, the ``casefold(s)`` function performs full case folding.  To use simple case folding, pass the parameter ``fullcasefold=False`` (the default is ``fullcasefold=True``).  See the comments in ``CaseFolding.txt`` for an explanation of the difference between simple and full case folding.
+
 Example usage
 ^^^^^^^^^^^^^
 
