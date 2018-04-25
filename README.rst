@@ -76,6 +76,22 @@ Using Python 2::
    ı
    İ
 
+Using the latest Unicode Character Database (UCD)
+-------------------------------------------------
+
+As of Python 2.7.14, the `unicodedata <https://docs.python.org/2/library/unicodedata.html>`_ module is still using data from version 5.2.0 of the UCD.  The UCD is currently up to version 10.0.0.  The ``UnicodeCharacter`` namedtuple encapsulates the various properties associated with each Unicode character, as explained in `Unicode Standard Annex #44, UnicodeData.txt <https://www.unicode.org/reports/tr44/#UnicodeData.txt>`_.  The ``UnicodeData`` class represents the contents of the UCD as parsed from the `latest UnicodeData.txt <ftp://ftp.unicode.org/Public/UCD/latest/ucd/UnicodeData.txt>`_ found on the Unicode Consortium FTP site.
+
+Example usage
+^^^^^^^^^^^^^
+
+Using Python 2::
+
+   >>> from unicodeutil import UnicodeData
+   >>> ucd = UnicodeData()
+   >>> ucd[u"ß"]
+   UnicodeCharacter(name='LATIN SMALL LETTER SHARP S', category='Ll', combining='0', bidi='L', decomposition='', decimal='', digit='', numeric='', mirrored='N', unicode_1_name='', iso_comment='', uppercase='', lowercase='', titlecase='')
+   >>> ucd[u"İ"].name
+   'LATIN CAPITAL LETTER I WITH DOT ABOVE'
 
 License
 -------

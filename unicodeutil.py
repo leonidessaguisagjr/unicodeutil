@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-from collections import defaultdict
+from collections import defaultdict, namedtuple
+from fractions import Fraction
 import os
 import re
 
@@ -37,26 +38,99 @@ def preservesurrogates(s):
     return surrogates_regex.findall(s)
 
 
+def _hexstr_to_unichr(s):
+    """
+    Helper function for taking a hex string and returning a unicode char.
+
+    :param s: hex string to convert
+    :return: unicode character
+    """
+    try:
+        return unichr(int(s, 16))
+    except ValueError:
+        # Workaround the error "ValueError: unichr() arg not in range(0x10000) (narrow Python build)"
+        return ("\\U%08x" % int(s, 16)).decode("unicode-escape")
+
+
+# Documentation on the fields of UnicodeData.txt:
+# https://www.unicode.org/L2/L1999/UnicodeData.html
+# https://www.unicode.org/reports/tr44/#UnicodeData.txt
+UnicodeCharacter = namedtuple("UnicodeCharacter", ["name", "category", "combining", "bidi", "decomposition",
+                                                   "decimal", "digit", "numeric", "mirrored", "unicode_1_name",
+                                                   "iso_comment", "uppercase", "lowercase", "titlecase"])
+
+
+class UnicodeData:
+    """Class for encapsulating the data in UnicodeData.txt"""
+
+    def __init__(self):
+        """Initialize the class by building the Unicode character database."""
+        self._unicode_character_database = {}
+        self._build_unicode_character_database()
+
+    def _build_unicode_character_database(self):
+        """
+        Function for parsing the Unicode character data from the Unicode Character
+        Database (UCD) and generating a lookup table.  For more info on the UCD,
+        see the following website: https://www.unicode.org/ucd/
+        """
+        filename = "UnicodeData.txt"
+        current_dir = os.path.abspath(os.path.dirname(__file__))
+        with open(os.path.join(current_dir, filename), "rb") as fp:
+            for line in fp:
+                if not line.strip():
+                    continue
+                data = line.strip().split(";")
+                data[0] = _hexstr_to_unichr(data[0])  # code
+                for i in [6, 7, 8]:  # Convert the decimal, digit and numeric fields to either ints or fractions.
+                    if data[i]:
+                        if "/" in data[i]:
+                            data[i] = Fraction(data[i])
+                        else:
+                            data[i] = int(data[i])
+                for i in [12, 13, 14]:  # Convert the uppercase, lowercase and titlecase fields to characters.
+                    if data[i]:
+                        data[i] = _hexstr_to_unichr(data[i])
+                self._unicode_character_database[data[0]] = UnicodeCharacter(*data[1:])
+
+    def get(self, c):
+        """
+        Function for retrieving the UnicodeCharacter associated with the character c.
+
+        :param c: Character to look up.
+        :return: UnicodeCharacter instance with data associated with the character.
+        """
+        return self._unicode_character_database[c]
+
+    def __getitem__(self, item):
+        """
+        Function for retrieving the UnicodeCharacter associated with the character c.
+
+        :param item: Character to look up.
+        :return: UnicodeCharacter instance with data associated with the character.
+        """
+        return self._unicode_character_database.__getitem__(item)
+
+    def name(self, name):
+        """
+        Function for retrieving the UnicodeCharacter associated with a name e.g.
+
+        ucd = UnicodeData()
+        ucd.name("LATIN SMALL LETTER SHARP S") -> UnicodeCharacter(name='LATIN SMALL LETTER SHARP S', category=..)
+
+        :param name: Name of the character to look up.
+        :return: UnicodeCharacter instance with data associated with the character.
+        """
+        # TODO: Implement this
+        raise NotImplementedError("Not yet implemented!")
+
+
 class CaseFoldingMap:
     """Class for performing Unicode case folding."""
 
     def __init__(self):
         """Initialize the class by building the casefold map."""
         self._build_casefold_map()
-
-    @staticmethod
-    def _hexstr_to_unichr(s):
-        """
-        Helper function for taking a hex string and returning a unicode char.
-
-        :param s: hex string to convert
-        :return: unicode character
-        """
-        try:
-            return unichr(int(s, 16))
-        except ValueError:
-            # Workaround the error "ValueError: unichr() arg not in range(0x10000) (narrow Python build)"
-            return ("\\U%08x" % int(s, 16)).decode("unicode-escape")
 
     def _build_casefold_map(self):
         """
@@ -72,8 +146,8 @@ class CaseFoldingMap:
                 if not line.strip() or line.startswith("#"):
                     continue  # Skip empty lines or lines that are comments (comments start with '#')
                 code, status, mapping, name = line.split(";")
-                src = self._hexstr_to_unichr(code)
-                target = u"".join([self._hexstr_to_unichr(c) for c in mapping.strip().split()])
+                src = _hexstr_to_unichr(code)
+                target = u"".join([_hexstr_to_unichr(c) for c in mapping.strip().split()])
                 self._casefold_map[status.strip()][src] = target
 
     def lookup(self, c, lookup_order="CF"):

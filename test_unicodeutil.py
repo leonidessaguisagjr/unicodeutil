@@ -3,7 +3,7 @@
 
 import unittest
 
-from unicodeutil import CaseFoldingMap, casefold, preservesurrogates
+from unicodeutil import CaseFoldingMap, UnicodeData, casefold, preservesurrogates
 
 
 class TestCaseFoldingMap(unittest.TestCase):
@@ -57,6 +57,43 @@ class TestCaseFoldingMap(unittest.TestCase):
         # LATIN CAPITAL LETTER I WITH DOT ABOVE
         self.assertEqual(u"i", self.casefoldingmap.lookup(u"İ", lookup_order="TCF"))
         self.assertEqual(u"i", self.casefoldingmap.lookup(u"İ", lookup_order="TCS"))
+
+
+class TestUnicodeData(unittest.TestCase):
+    """Class for testing the UnicodeData() class."""
+
+    def setUp(self):
+        """Shared setup for all tests."""
+        self.ucd = UnicodeData()
+
+    def test_lookup(self):
+        """Test the default lookup behavior."""
+        self.assertEqual(u"LATIN CAPITAL LETTER I WITH DOT ABOVE", self.ucd[u"İ"].name)
+        self.assertEqual(0, self.ucd[u"0"].decimal)
+        self.assertEqual(1, self.ucd[u"1"].digit)
+        self.assertEqual(2, self.ucd[u"2"].numeric)
+        self.assertEqual(u"BACKSLASH", self.ucd[u"\\"].unicode_1_name)
+        self.assertEqual(u"A", self.ucd[u"a"].uppercase)
+        self.assertEqual(u"z", self.ucd[u"Z"].lowercase)
+        self.assertEqual(u"ǅ", self.ucd[u"Ǆ"].titlecase)
+
+    def test_name_lookup(self):
+        """Test looking up by name."""
+        # TODO: Not yet implemented, so this will raise an Exception for now.
+        self.assertRaises(NotImplementedError, self.ucd.name, "FOO")
+
+    def test_lookup_nonchar(self):
+        """
+        Test that looking up a noncharacter raises a KeyError.
+
+        See https://www.unicode.org/faq/private_use.html#nonchar1 for more info on Unicode noncharacters.
+        """
+        self.assertRaises(KeyError, self.ucd.get, unichr(0xFDD0))
+        self.assertRaises(KeyError, self.ucd.get, unichr(0xFDEF))
+
+    def test_get_getitem(self):
+        """Test that calls to get() and __getitem__() return the same data."""
+        self.assertEqual(self.ucd.get(u"ẞ"), self.ucd[u"ẞ"])
 
 
 class TestCasefold(unittest.TestCase):
