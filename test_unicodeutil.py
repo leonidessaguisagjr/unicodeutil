@@ -3,7 +3,7 @@
 
 import unittest
 
-from unicodeutil import CaseFoldingMap, casefold
+from unicodeutil import CaseFoldingMap, casefold, preservesurrogates
 
 
 class TestCaseFoldingMap(unittest.TestCase):
@@ -25,11 +25,29 @@ class TestCaseFoldingMap(unittest.TestCase):
         self.assertEqual(u"İ", self.casefoldingmap.lookup(u"İ", lookup_order="CS"))
         self.assertEqual(u"ß", self.casefoldingmap.lookup(u"ẞ", lookup_order="CS"))
 
+    def test_simple_lookup_surrogate_pair(self):
+        """Test the behavior of a simple casefold call to lookup() using a surrogate pair."""
+        # DESERET CAPITAL LETTER LONG I
+        self.assertEqual(u"\U00010428", self.casefoldingmap.lookup(u"\U00010400", lookup_order="CS"))
+        # OLD HUNGARIAN CAPITAL LETTER NIKOLSBURG OE
+        self.assertEqual(u"\U00010428", self.casefoldingmap.lookup(u"\U00010400", lookup_order="CS"))
+        # ADLAM CAPITAL LETTER ALIF
+        self.assertEqual(u"\U00010cdd", self.casefoldingmap.lookup(u"\U00010c9d", lookup_order="CS"))
+
     def test_full_lookup(self):
         """Test the behavior of a full casefold call to lookup()."""
         self.assertEqual(u"ss", self.casefoldingmap.lookup(u"ß", lookup_order="CF"))
         self.assertEqual(u"i\u0307", self.casefoldingmap.lookup(u"İ", lookup_order="CF"))
         self.assertEqual(u"ss", self.casefoldingmap.lookup(u"ẞ", lookup_order="CF"))
+
+    def test_full_lookup_surrogate_pair(self):
+        """Test the behavior of a full casefold call to lookup() using a surrogate pair."""
+        # DESERET CAPITAL LETTER LONG I
+        self.assertEqual(u"\U00010428", self.casefoldingmap.lookup(u"\U00010400", lookup_order="CF"))
+        # OLD HUNGARIAN CAPITAL LETTER NIKOLSBURG OE
+        self.assertEqual(u"\U00010428", self.casefoldingmap.lookup(u"\U00010400", lookup_order="CF"))
+        # ADLAM CAPITAL LETTER ALIF
+        self.assertEqual(u"\U00010cdd", self.casefoldingmap.lookup(u"\U00010c9d", lookup_order="CF"))
 
     def test_turkish_lookup(self):
         """Test the behavior of a turkish casefold call to lookup()."""
@@ -71,6 +89,11 @@ class TestCasefold(unittest.TestCase):
         # GREEK CAPITAL LETTER ALPHA WITH PSILI AND PROSGEGRAMMENI
         self.assertEqual(u"\u1f80", casefold(u"\u1f88", fullcasefold=False))
 
+    def test_simple_casefold_surrogate_pair(self):
+        """Test for simple casefolding of a string with surrogate pairs."""
+        # A; B; OSAGE CAPITAL LETTER A; C; D; WARANG CITI CAPITAL LETTER NGAA; E; F
+        self.assertEqual(u"ab\U000104D8cd\U000118C0ef", casefold(u"AB\U000104B0CD\U000118A0EF", fullcasefold=False))
+
     def test_full_casefold(self):
         """Test for full casefolding (explicitly specifying fullcasefold=True)."""
         self.assertEqual(u"weiss", casefold(u"weiß", fullcasefold=True))
@@ -79,6 +102,27 @@ class TestCasefold(unittest.TestCase):
         self.assertEqual(u"\u03b9\u0308\u0301", casefold(u"\u0390", fullcasefold=True))
         # GREEK CAPITAL LETTER ALPHA WITH PSILI AND PROSGEGRAMMENI
         self.assertEqual(u"\u1f00\u03b9", casefold(u"\u1f88", fullcasefold=True))
+
+    def test_full_casefold_surrogate_pair(self):
+        """Test for full casefolding of a string with surrogate pairs."""
+        # A; B; OSAGE CAPITAL LETTER A; C; D; WARANG CITI CAPITAL LETTER NGAA; E; F
+        self.assertEqual(u"ab\U000104D8cd\U000118C0ef", casefold(u"AB\U000104B0CD\U000118A0EF", fullcasefold=True))
+
+
+class TestPreserveSurrogates(unittest.TestCase):
+    """Class for testing the preservesurrogates(s) function."""
+
+    def test_preservesurrogates(self):
+        """Positive test for preservesurrogates() functionality."""
+        test_input = u"ABC\U0001e900DeF\U000118a0gHıİ"
+        expected = [u'A', u'B', u'C', u'\U0001e900', u'D', u'e', u'F', u'\U000118a0', u'g', u'H', u'ı', u'İ']
+        actual = preservesurrogates(test_input)
+        self.assertEqual(len(expected), len(actual))
+        self.assertEqual(expected, actual)
+
+    def test_preservesurrogates_non_unicode(self):
+        """Test that passing a non-unicode string causes an exception to be raised."""
+        self.assertRaises(TypeError, preservesurrogates, "ABCDEF")
 
 
 if __name__ == "__main__":

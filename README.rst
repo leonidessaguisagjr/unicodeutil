@@ -1,7 +1,7 @@
 ``unicodeutil.py``
 ==================
 
-Python function for working with Unicode data.
+Python classes and functions for working with Unicode data.
 
 
 Case folding function for Python 2
@@ -25,6 +25,56 @@ Using Python 2::
    >>> s2 = u"WEISS"
    >>> casefold(s1) == casefold(s2)
    True
+
+
+Splitting a Python 2 string into chars, preserving surrogate pairs
+-------------------------------------------------------------------------
+
+The ``preservesurrogates(s)`` function will split a string into a list of characters, preserving `surrogate pairs <https://www.unicode.org/glossary/#surrogate_pair>`_.
+
+Example usage
+^^^^^^^^^^^^^
+
+Using Python 2::
+
+   >>> from unicodeutil import preservesurrogates
+   >>> s = u"ABC\U0001e900DeF\U000118a0gHıİ"
+   >>> list(s)
+   [u'A', u'B', u'C', u'\ud83a', u'\udd00', u'D', u'e', u'F', u'\ud806', u'\udca0', u'g', u'H', u'\u0131', u'\u0130']
+   >>> for c in s:
+   ...     print c
+   ...
+   A
+   B
+   C
+   ???
+   ???
+   D
+   e
+   F
+   ???
+   ???
+   g
+   H
+   ı
+   İ
+   >>> list(preservesurrogates(s))
+   [u'A', u'B', u'C', u'\U0001e900', u'D', u'e', u'F', u'\U000118a0', u'g', u'H', u'\u0131', u'\u0130']
+   >>> for c in preservesurrogates(s):
+   ...     print(c)
+   ...
+   A
+   B
+   C
+   𞤀
+   D
+   e
+   F
+   𑢠
+   g
+   H
+   ı
+   İ
 
 
 License

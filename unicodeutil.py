@@ -2,6 +2,39 @@
 
 from collections import defaultdict
 import os
+import re
+
+
+HIGH_SURROGATE_START = u"\ud800"
+HIGH_SURROGATE_END = u"\udbff"
+LOW_SURROGATE_START = u"\udc00"
+LOW_SURROGATE_END = u"\udfff"
+
+
+def preservesurrogates(s):
+    """
+    Function for splitting a string into a list of characters, preserving surrogate pairs.
+
+    In python 2, unicode characters above 0x10000 are stored as surrogate pairs.  For example, the Unicode character
+    u"\U0001e900" is stored as the surrogate pair u"\ud83a\udd00":
+
+    s = u"AB\U0001e900CD"
+    len(s) -> 6
+    list(s) -> [u'A', u'B', u'\ud83a', u'\udd00', u'C', 'D']
+    len(preservesurrogates(s)) -> 5
+    list(preservesurrogates(s)) -> [u'A', u'B', u'\U0001e900', u'C', u'D']
+
+    :param s: String to split
+    :return: List of characters
+    """
+    if not isinstance(s, unicode):
+        raise TypeError(u"String to split must be of type 'unicode'!")
+    surrogates_regex_str = u"[{0}-{1}][{2}-{3}]".format(HIGH_SURROGATE_START,
+                                                        HIGH_SURROGATE_END,
+                                                        LOW_SURROGATE_START,
+                                                        LOW_SURROGATE_END)
+    surrogates_regex = re.compile(u"(?:{0})|.".format(surrogates_regex_str))
+    return surrogates_regex.findall(s)
 
 
 class CaseFoldingMap:
@@ -11,7 +44,8 @@ class CaseFoldingMap:
         """Initialize the class by building the casefold map."""
         self._build_casefold_map()
 
-    def _hexstr_to_unichr(self, s):
+    @staticmethod
+    def _hexstr_to_unichr(s):
         """
         Helper function for taking a hex string and returning a unicode char.
 
@@ -39,7 +73,7 @@ class CaseFoldingMap:
                     continue  # Skip empty lines or lines that are comments (comments start with '#')
                 code, status, mapping, name = line.split(";")
                 src = self._hexstr_to_unichr(code)
-                target = "".join([self._hexstr_to_unichr(c) for c in mapping.strip().split()])
+                target = u"".join([self._hexstr_to_unichr(c) for c in mapping.strip().split()])
                 self._casefold_map[status.strip()][src] = target
 
     def lookup(self, c, lookup_order="CF"):
@@ -61,7 +95,7 @@ class CaseFoldingMap:
         :param lookup_order:
         """
         if not isinstance(c, unicode):
-            raise TypeError("Character to lookup must be of type 'unicode'!")
+            raise TypeError(u"Character to lookup must be of type 'unicode'!")
         for d in lookup_order:
             try:
                 return self._casefold_map[d][c]
@@ -86,11 +120,13 @@ def casefold(s, fullcasefold=True):
     https://unicode.org/faq/casemap_charprop.htm
 
     :param s: String to transform
+    :param fullcasefold: Boolean indicating if a full case fold (default is True) should be done.  If False, a simple
+                         case fold will be performed.
     :return: Copy of string that has been transformed for caseless comparison.
     """
     if not isinstance(s, unicode):
-        raise TypeError("String to casefold must be of type 'unicode'!")
+        raise TypeError(u"String to casefold must be of type 'unicode'!")
     lookup_order = "CF"
     if not fullcasefold:
         lookup_order = "CS"
-    return u"".join([casefold_map.lookup(c, lookup_order=lookup_order) for c in s])
+    return u"".join([casefold_map.lookup(c, lookup_order=lookup_order) for c in preservesurrogates(s)])
