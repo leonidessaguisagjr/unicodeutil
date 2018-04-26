@@ -1,15 +1,15 @@
 ``unicodeutil``
 ===============
 
-Python classes and functions for working with Unicode data.
+Python classes and functions for working with Unicode® data.
 
 
 Case folding function for Python 2
 ----------------------------------
 
-``casefold(s)`` is a function for performing case folding per section 3.13 of the `Unicode Standard <https://www.unicode.org/versions/latest/ch03.pdf>`_.  Also see the `W3C page on case folding <https://www.w3.org/International/wiki/Case_folding>`_ for more information on what case folding is.
+``casefold(s)`` is a function for performing case folding per section 3.13 of the `Unicode® Standard <https://www.unicode.org/versions/latest/ch03.pdf>`_.  Also see the `W3C page on case folding <https://www.w3.org/International/wiki/Case_folding>`_ for more information on what case folding is.
 
-Python 3.3 and newer has ``str.casefold()`` already built in.  This is my attempt at building a case folding function to use with Python 2 and as such has only been tested with Python 2.7.14.  It essentially parses the ``CaseFolding.txt`` file that is included in the `Unicode Character Database <https://www.unicode.org/ucd/>`_ to build a dictionary that is then used as a lookup table to create a copy of the input string that has been transformed to facilitate caseless comparisons.
+Python 3.3 and newer has ``str.casefold()`` already built in.  This is my attempt at building a case folding function to use with Python 2 and as such has only been tested with Python 2.7.14.  It essentially parses the ``CaseFolding.txt`` file that is included in the `Unicode® Character Database <https://www.unicode.org/ucd/>`_ to build a dictionary that is then used as a lookup table to create a copy of the input string that has been transformed to facilitate caseless comparisons.
 
 A bit more information about how I put this together on my `blog <http://www.leonidessaguisagjr.name/?p=231>`_.
 
@@ -88,10 +88,10 @@ Using Python 2::
    ı
    İ
 
-Using the latest Unicode Character Database (UCD)
--------------------------------------------------
+Using the latest Unicode® Character Database (UCD)
+--------------------------------------------------
 
-As of Python 2.7.14, the `unicodedata <https://docs.python.org/2/library/unicodedata.html>`_ module is still using data from version 5.2.0 of the UCD.  The UCD is currently up to version 10.0.0.  The ``UnicodeCharacter`` namedtuple encapsulates the various properties associated with each Unicode character, as explained in `Unicode Standard Annex #44, UnicodeData.txt <https://www.unicode.org/reports/tr44/#UnicodeData.txt>`_.  The ``UnicodeData`` class represents the contents of the UCD as parsed from the `latest UnicodeData.txt <ftp://ftp.unicode.org/Public/UCD/latest/ucd/UnicodeData.txt>`_ found on the Unicode Consortium FTP site.  Once an instance of the ``UnicodeData`` class has been created, it is possible to do ``dict`` style lookups using the Unicode characters, or lookups by name using the ``lookup_by_name(name)`` method.  The name lookup uses the `UAX44-LM2 <https://www.unicode.org/reports/tr44/#UAX44-LM2>`_ loose matching rule when doing lookups.  Iterating through all of the data is also possible via ``items()``, ``keys()`` and ``values()`` methods.
+As of Python 2.7.14, the `unicodedata <https://docs.python.org/2/library/unicodedata.html>`_ module is still using data from version 5.2.0 of the UCD.  The UCD is currently up to version 10.0.0.  The ``UnicodeCharacter`` namedtuple encapsulates the various properties associated with each Unicode® character, as explained in `Unicode Standard Annex #44, UnicodeData.txt <https://www.unicode.org/reports/tr44/#UnicodeData.txt>`_.  The ``UnicodeData`` class represents the contents of the UCD as parsed from the `latest UnicodeData.txt <ftp://ftp.unicode.org/Public/UCD/latest/ucd/UnicodeData.txt>`_ found on the Unicode Consortium FTP site.  Once an instance of the ``UnicodeData`` class has been created, it is possible to do ``dict`` style lookups using the Unicode characters, or lookups by name using the ``lookup_by_name(name)`` method.  The name lookup uses the `UAX44-LM2 <https://www.unicode.org/reports/tr44/#UAX44-LM2>`_ loose matching rule when doing lookups.  Iterating through all of the data is also possible via ``items()``, ``keys()`` and ``values()`` methods.
 
 Example usage
 ^^^^^^^^^^^^^
@@ -112,4 +112,4 @@ License
 
 This is released under an MIT license.  See the ``LICENSE`` file in this repository for more information.
 
-The included ``CaseFolding.txt`` and ``UnicodeData.txt`` files are part of the Unicode Character Database that is published by the Unicode Consortium.  Please consult the `Unicode® Terms of Use <https://www.unicode.org/copyright.html>`_ prior to use.
+The included ``CaseFolding.txt`` and ``UnicodeData.txt`` files are part of the Unicode® Character Database that is published by Unicode, Inc.  Please consult the `Unicode® Terms of Use <https://www.unicode.org/copyright.html>`_ prior to use.
