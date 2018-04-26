@@ -89,7 +89,7 @@ Using Python 2::
    >>> from unicodeutil import UnicodeData
    >>> ucd = UnicodeData()
    >>> ucd[u"ß"]
-   UnicodeCharacter(name='LATIN SMALL LETTER SHARP S', category='Ll', combining='0', bidi='L', decomposition='', decimal='', digit='', numeric='', mirrored='N', unicode_1_name='', iso_comment='', uppercase='', lowercase='', titlecase='')
+   UnicodeCharacter(name='LATIN SMALL LETTER SHARP S', category='Ll', combining=0, bidi='L', decomposition='', decimal='', digit='', numeric='', mirrored='N', unicode_1_name='', iso_comment='', uppercase='', lowercase='', titlecase='')
    >>> ucd[u"İ"].name
    'LATIN CAPITAL LETTER I WITH DOT ABOVE'
 
