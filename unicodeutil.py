@@ -82,6 +82,7 @@ class UnicodeData:
                     continue
                 data = line.strip().split(";")
                 data[0] = _hexstr_to_unichr(data[0])  # code
+                data[3] = int(data[3])  # Convert the Canonical Combining Class value into an int.
                 for i in [6, 7, 8]:  # Convert the decimal, digit and numeric fields to either ints or fractions.
                     if data[i]:
                         if "/" in data[i]:
