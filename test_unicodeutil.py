@@ -84,6 +84,13 @@ class TestUnicodeData(unittest.TestCase):
         self.assertEqual(expected, self.ucd.lookup_by_name("LATIN_SMALL_LETTER_SHARP_S"))
         self.assertEqual(expected, self.ucd.lookup_by_name("latin_small_letter_sharp_s"))
         self.assertEqual(expected, self.ucd.lookup_by_name("latinsmalllettersharps"))
+        expected = self.ucd[unichr(0x200c)]
+        self.assertEqual(expected, self.ucd.lookup_by_name("ZERO WIDTH NON-JOINER"))
+        self.assertEqual(expected, self.ucd.lookup_by_name("ZERO_WIDTH_NON-JOINER"))
+        self.assertEqual(expected, self.ucd.lookup_by_name("ZERO_WIDTH_NON_JOINER"))
+        self.assertEqual(expected, self.ucd.lookup_by_name("Zero Width Non-Joiner"))
+        self.assertEqual(expected, self.ucd.lookup_by_name("zero width non-joiner"))
+        self.assertEqual(expected, self.ucd.lookup_by_name("zero width non joiner"))
 
     def test_name_lookup_neg(self):
         """Test for verifying that looking for a non-existent name causes a KeyError to be raised."""

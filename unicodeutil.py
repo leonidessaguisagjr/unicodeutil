@@ -99,7 +99,7 @@ def _uax44lm2transform(s):
 # Documentation on the fields of UnicodeData.txt:
 # https://www.unicode.org/L2/L1999/UnicodeData.html
 # https://www.unicode.org/reports/tr44/#UnicodeData.txt
-UnicodeCharacter = namedtuple("UnicodeCharacter", ["name", "category", "combining", "bidi", "decomposition",
+UnicodeCharacter = namedtuple("UnicodeCharacter", ["code", "name", "category", "combining", "bidi", "decomposition",
                                                    "decimal", "digit", "numeric", "mirrored", "unicode_1_name",
                                                    "iso_comment", "uppercase", "lowercase", "titlecase"])
 
@@ -127,7 +127,6 @@ class UnicodeData:
                 if not line.strip():
                     continue
                 data = line.strip().split(";")
-                data[0] = _hexstr_to_unichr(data[0])  # code
                 data[3] = int(data[3])  # Convert the Canonical Combining Class value into an int.
                 if data[5]:  # Convert the contents of the decomposition into characters, preserving tag info.
                     data[5] = u" ".join([_hexstr_to_unichr(s) if not tag.match(s) else s for s in data[5].split()])
@@ -141,8 +140,8 @@ class UnicodeData:
                     if data[i]:
                         data[i] = _hexstr_to_unichr(data[i])
                 lookup_name = _uax44lm2transform(data[1])
-                uc_data = UnicodeCharacter(*data[1:])
-                self._unicode_character_database[data[0]] = uc_data
+                uc_data = UnicodeCharacter(u"U+" + data[0], *data[1:])
+                self._unicode_character_database[_hexstr_to_unichr(data[0])] = uc_data
                 self._name_database[lookup_name] = uc_data
 
     def get(self, c):
