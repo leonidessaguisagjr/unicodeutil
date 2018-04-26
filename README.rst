@@ -112,4 +112,4 @@ License
 
 This is released under an MIT license.  See the ``LICENSE`` file in this repository for more information.
 
-The included ``CaseFolding.txt`` file is part of the Unicode Character Database that is published by the Unicode Consortium.  Please consult the `Unicode® Terms of Use <https://www.unicode.org/copyright.html>`_ prior to use.
+The included ``CaseFolding.txt`` and ``UnicodeData.txt`` files are part of the Unicode Character Database that is published by the Unicode Consortium.  Please consult the `Unicode® Terms of Use <https://www.unicode.org/copyright.html>`_ prior to use.
