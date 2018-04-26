@@ -1,5 +1,5 @@
-``unicodeutil.py``
-==================
+``unicodeutil``
+===============
 
 Python classes and functions for working with Unicode data.
 
