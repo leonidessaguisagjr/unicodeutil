@@ -76,6 +76,7 @@ class UnicodeData:
         """
         filename = "UnicodeData.txt"
         current_dir = os.path.abspath(os.path.dirname(__file__))
+        tag = re.compile(r"<\w+?>")
         with open(os.path.join(current_dir, filename), "rb") as fp:
             for line in fp:
                 if not line.strip():
@@ -83,6 +84,8 @@ class UnicodeData:
                 data = line.strip().split(";")
                 data[0] = _hexstr_to_unichr(data[0])  # code
                 data[3] = int(data[3])  # Convert the Canonical Combining Class value into an int.
+                if data[5]:  # Convert the contents of the decomposition into characters, preserving tag info.
+                    data[5] = u" ".join([_hexstr_to_unichr(s) if not tag.match(s) else s for s in data[5].split()])
                 for i in [6, 7, 8]:  # Convert the decimal, digit and numeric fields to either ints or fractions.
                     if data[i]:
                         if "/" in data[i]:
