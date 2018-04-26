@@ -15,6 +15,12 @@ A bit more information about how I put this together on my `blog <http://www.leo
 
 By default, the ``casefold(s)`` function performs full case folding.  To use simple case folding, pass the parameter ``fullcasefold=False`` (the default is ``fullcasefold=True``).  See the comments in ``CaseFolding.txt`` for an explanation of the difference between simple and full case folding.
 
+By default, the ``casefold(s)`` function will not use the Turkic special case mappings for dotted and dotless 'i'.  To use the Turkic mapping, pass the parameter ``useturkicmapping=True`` to the function.  See the following web pages for more information on the dotted vs dotless 'i':
+
+* https://en.wikipedia.org/wiki/Dotted_and_dotless_I
+* http://www.i18nguy.com/unicode/turkish-i18n.html#problem
+
+
 Example usage
 ^^^^^^^^^^^^^
 
@@ -24,6 +30,12 @@ Using Python 2::
    >>> s1 = u"weiß"
    >>> s2 = u"WEISS"
    >>> casefold(s1) == casefold(s2)
+   True
+   >>> s1 = u"LİMANI"
+   >>> s2 = u"limanı"
+   >>> casefold(s1) == casefold(s2)
+   False
+   >>> casefold(s1, useturkicmapping=True) == casefold(s2, useturkicmapping=True)
    True
 
 

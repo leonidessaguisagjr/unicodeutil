@@ -152,6 +152,17 @@ class TestCasefold(unittest.TestCase):
         # A; B; OSAGE CAPITAL LETTER A; C; D; WARANG CITI CAPITAL LETTER NGAA; E; F
         self.assertEqual(u"ab\U000104D8cd\U000118C0ef", casefold(u"AB\U000104B0CD\U000118A0EF", fullcasefold=True))
 
+    def test_turkic_casefold(self):
+        """Test for casefolding with the useturkicmapping parameter."""
+        s1 = u"DİYARBAKIR"
+        s2 = u"Diyarbakır"
+        self.assertNotEqual(casefold(s1), casefold(s2))
+        self.assertEqual(casefold(s1, useturkicmapping=True), casefold(s2, useturkicmapping=True))
+        s1 = u"MISSISSIPPI"
+        s2 = u"mississippi"
+        self.assertEqual(casefold(s1), casefold(s2))
+        self.assertNotEqual(casefold(s1, useturkicmapping=True), casefold(s2, useturkicmapping=True))
+
 
 class TestPreserveSurrogates(unittest.TestCase):
     """Class for testing the preservesurrogates(s) function."""
