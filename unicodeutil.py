@@ -115,6 +115,34 @@ class UnicodeData:
         """
         return self._unicode_character_database.__getitem__(item)
 
+    def __iter__(self):
+        """Function for iterating through the keys of the data."""
+        return self._unicode_character_database.__iter__()
+
+    def items(self):
+        """
+        Returns a list of the data's (key, value) pairs, as tuples.
+
+        :return: list of (key, value) pairs, as tuples.
+        """
+        return self._unicode_character_database.items()
+
+    def keys(self):
+        """
+        Returns a list of the data's keys.
+
+        :return: list of the data's keys
+        """
+        return self._unicode_character_database.keys()
+
+    def values(self):
+        """
+        Returns a list of the data's values.
+
+        :return:
+        """
+        return self._unicode_character_database.values()
+
     def name(self, name):
         """
         Function for retrieving the UnicodeCharacter associated with a name e.g.
