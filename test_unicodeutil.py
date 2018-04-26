@@ -77,10 +77,17 @@ class TestUnicodeData(unittest.TestCase):
         self.assertEqual(u"z", self.ucd[u"Z"].lowercase)
         self.assertEqual(u"ǅ", self.ucd[u"Ǆ"].titlecase)
 
-    def test_name_lookup(self):
+    def test_lookup_by_name(self):
         """Test looking up by name."""
-        # TODO: Not yet implemented, so this will raise an Exception for now.
-        self.assertRaises(NotImplementedError, self.ucd.name, "FOO")
+        expected = self.ucd[u"ß"]
+        self.assertEqual(expected, self.ucd.lookup_by_name("LATIN SMALL LETTER SHARP S"))
+        self.assertEqual(expected, self.ucd.lookup_by_name("LATIN_SMALL_LETTER_SHARP_S"))
+        self.assertEqual(expected, self.ucd.lookup_by_name("latin_small_letter_sharp_s"))
+        self.assertEqual(expected, self.ucd.lookup_by_name("latinsmalllettersharps"))
+
+    def test_name_lookup_neg(self):
+        """Test for verifying that looking for a non-existent name causes a KeyError to be raised."""
+        self.assertRaises(KeyError, self.ucd.lookup_by_name, "THIS IS A NON-EXISTENT NAME")
 
     def test_lookup_nonchar(self):
         """

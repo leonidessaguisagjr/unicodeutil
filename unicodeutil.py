@@ -52,6 +52,50 @@ def _hexstr_to_unichr(s):
         return ("\\U%08x" % int(s, 16)).decode("unicode-escape")
 
 
+def _uax44lm2transform(s):
+    """
+    Helper function for taking a string (i.e. a Unicode character name) and transforming it via UAX44-LM2 loose matching
+    rule.  For more information, see <https://www.unicode.org/reports/tr44/#UAX44-LM2>.
+
+    The rule is defined as follows:
+
+    "UAX44-LM2. Ignore case, whitespace, underscore ('_'), and all medial hyphens except the hyphen in
+    U+1180 HANGUL JUNGSEONG O-E."
+
+    Therefore, correctly implementing the rule involves performing the following three operations, in order:
+
+    1. remove all medial hyphens (except the medial hyphen in the name for U+1180)
+    2. remove all whitespace and underscore characters
+    3. apply toLowercase() to both strings
+
+    A "medial hyphen" is defined as follows (quoted from the above referenced web page):
+
+    "In this rule 'medial hyphen' is to be construed as a hyphen occurring immediately between two letters in the
+    normative Unicode character name, as published in the Unicode names list, and not to any hyphen that may transiently
+    occur medially as a result of removing whitespace before removing hyphens in a particular implementation of
+    matching. Thus the hyphen in the name U+10089 LINEAR B IDEOGRAM B107M HE-GOAT is medial, and should be ignored in
+    loose matching, but the hyphen in the name U+0F39 TIBETAN MARK TSA -PHRU is not medial, and should not be ignored in
+    loose matching."
+
+
+    :param s: String to transform
+    :return: String transformed per UAX44-LM2 loose matching rule.
+    """
+    result = s
+
+    # For the regex, we are using lookaround assertions to verify that there is a word character immediately before (the
+    # lookbehind assertion (?<=\w)) and immediately after (the lookahead assertion (?=\w)) the hyphen, per the "medial
+    # hyphen" definition that it is a hyphen occurring immediately between two letters.
+    medialhyphen = re.compile(r"(?<=\w)-(?=\w)")
+    whitespaceunderscore = re.compile(r"[\s_]", re.UNICODE)
+
+    # Ok to hard code, this name should never change: https://www.unicode.org/policies/stability_policy.html#Name
+    if result != "HANGUL JUNGSEONG O-E":
+        result = medialhyphen.sub("", result)
+    result = whitespaceunderscore.sub("", result)
+    return result.lower()
+
+
 # Documentation on the fields of UnicodeData.txt:
 # https://www.unicode.org/L2/L1999/UnicodeData.html
 # https://www.unicode.org/reports/tr44/#UnicodeData.txt
@@ -66,6 +110,7 @@ class UnicodeData:
     def __init__(self):
         """Initialize the class by building the Unicode character database."""
         self._unicode_character_database = {}
+        self._name_database = {}
         self._build_unicode_character_database()
 
     def _build_unicode_character_database(self):
@@ -95,7 +140,10 @@ class UnicodeData:
                 for i in [12, 13, 14]:  # Convert the uppercase, lowercase and titlecase fields to characters.
                     if data[i]:
                         data[i] = _hexstr_to_unichr(data[i])
-                self._unicode_character_database[data[0]] = UnicodeCharacter(*data[1:])
+                lookup_name = _uax44lm2transform(data[1])
+                uc_data = UnicodeCharacter(*data[1:])
+                self._unicode_character_database[data[0]] = uc_data
+                self._name_database[lookup_name] = uc_data
 
     def get(self, c):
         """
@@ -139,22 +187,31 @@ class UnicodeData:
         """
         Returns a list of the data's values.
 
-        :return:
+        :return: list of the data's values.
         """
         return self._unicode_character_database.values()
 
-    def name(self, name):
+    def lookup_by_name(self, name):
         """
-        Function for retrieving the UnicodeCharacter associated with a name e.g.
+        Function for retrieving the UnicodeCharacter associated with a name.  The name lookup uses the loose matching
+        rule UAX44-LM2 for loose matching.  See the following for more info:
+
+        https://www.unicode.org/reports/tr44/#UAX44-LM2
+
+        For example:
 
         ucd = UnicodeData()
-        ucd.name("LATIN SMALL LETTER SHARP S") -> UnicodeCharacter(name='LATIN SMALL LETTER SHARP S', category=..)
+        ucd.lookup_by_name("LATIN SMALL LETTER SHARP S") -> UnicodeCharacter(name='LATIN SMALL LETTER SHARP S',...)
+        ucd.lookup_by_name("latin_small_letter_sharp_s") -> UnicodeCharacter(name='LATIN SMALL LETTER SHARP S',...)
+
 
         :param name: Name of the character to look up.
         :return: UnicodeCharacter instance with data associated with the character.
         """
-        # TODO: Implement this
-        raise NotImplementedError("Not yet implemented!")
+        try:
+            return self._name_database[_uax44lm2transform(name)]
+        except KeyError:
+            raise KeyError(u"Unknown character name: '{0}'!".format(name))
 
 
 class CaseFoldingMap:
