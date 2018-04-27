@@ -1,15 +1,23 @@
 ``unicodeutil``
 ===============
 
-Python classes and functions for working with Unicode® data.
+Python classes and functions for working with Unicode® data.  This was initially built with Python 2 in mind but has also been tested with Python 3.
 
 
-Case folding function for Python 2
-----------------------------------
+Dependencies
+------------
+
+This package has the following external dependencies:
+
+* `six <https://pythonhosted.org/six/>`_ - for Python 2 to 3 compatibility
+
+
+Case folding function
+---------------------
 
 ``casefold(s)`` is a function for performing case folding per section 3.13 of the `Unicode® Standard <https://www.unicode.org/versions/latest/ch03.pdf>`_.  Also see the `W3C page on case folding <https://www.w3.org/International/wiki/Case_folding>`_ for more information on what case folding is.
 
-Python 3.3 and newer has ``str.casefold()`` already built in.  This is my attempt at building a case folding function to use with Python 2 and as such has only been tested with Python 2.7.14.  It essentially parses the ``CaseFolding.txt`` file that is included in the `Unicode® Character Database <https://www.unicode.org/ucd/>`_ to build a dictionary that is then used as a lookup table to create a copy of the input string that has been transformed to facilitate caseless comparisons.
+Python 3.3 and newer has ``str.casefold()`` already built in.  This is my attempt at building a case folding function to use with Python 2 and as such was initially only tested with Python 2.7.14.  It essentially parses the ``CaseFolding.txt`` file that is included in the `Unicode® Character Database <https://www.unicode.org/ucd/>`_ to build a dictionary that is then used as a lookup table to create a copy of the input string that has been transformed to facilitate caseless comparisons.
 
 A bit more information about how I put this together on my `blog <http://www.leonidessaguisagjr.name/?p=231>`_.
 

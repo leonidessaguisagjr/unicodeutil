@@ -2,8 +2,11 @@
 
 from collections import defaultdict, namedtuple
 from fractions import Fraction
+import codecs
 import os
 import re
+
+import six
 
 
 HIGH_SURROGATE_START = u"\ud800"
@@ -28,7 +31,7 @@ def preservesurrogates(s):
     :param s: String to split
     :return: List of characters
     """
-    if not isinstance(s, unicode):
+    if not isinstance(s, six.text_type):
         raise TypeError(u"String to split must be of type 'unicode'!")
     surrogates_regex_str = u"[{0}-{1}][{2}-{3}]".format(HIGH_SURROGATE_START,
                                                         HIGH_SURROGATE_END,
@@ -46,7 +49,7 @@ def _hexstr_to_unichr(s):
     :return: unicode character
     """
     try:
-        return unichr(int(s, 16))
+        return six.unichr(int(s, 16))
     except ValueError:
         # Workaround the error "ValueError: unichr() arg not in range(0x10000) (narrow Python build)"
         return ("\\U%08x" % int(s, 16)).decode("unicode-escape")
@@ -122,7 +125,7 @@ class UnicodeData:
         filename = "UnicodeData.txt"
         current_dir = os.path.abspath(os.path.dirname(__file__))
         tag = re.compile(r"<\w+?>")
-        with open(os.path.join(current_dir, filename), "rb") as fp:
+        with codecs.open(os.path.join(current_dir, filename), mode="r", encoding="utf-8") as fp:
             for line in fp:
                 if not line.strip():
                     continue
@@ -229,7 +232,7 @@ class CaseFoldingMap:
         self._casefold_map = defaultdict(dict)
         filename = "CaseFolding.txt"
         current_dir = os.path.abspath(os.path.dirname(__file__))
-        with open(os.path.join(current_dir, filename), "rb") as fp:
+        with codecs.open(os.path.join(current_dir, filename), mode="r", encoding="utf-8") as fp:
             for line in fp:
                 if not line.strip() or line.startswith("#"):
                     continue  # Skip empty lines or lines that are comments (comments start with '#')
@@ -256,7 +259,7 @@ class CaseFoldingMap:
         :param c: character to lookup
         :param lookup_order:
         """
-        if not isinstance(c, unicode):
+        if not isinstance(c, six.text_type):
             raise TypeError(u"Character to lookup must be of type 'unicode'!")
         for d in lookup_order:
             try:
@@ -300,7 +303,7 @@ def casefold(s, fullcasefold=True, useturkicmapping=False):
                              dotless 'i' should be used.
     :return: Copy of string that has been transformed for caseless comparison.
     """
-    if not isinstance(s, unicode):
+    if not isinstance(s, six.text_type):
         raise TypeError(u"String to casefold must be of type 'unicode'!")
     lookup_order = "CF"
     if not fullcasefold:

@@ -3,6 +3,8 @@
 
 import unittest
 
+import six
+
 from unicodeutil import CaseFoldingMap, UnicodeData, casefold, preservesurrogates
 
 
@@ -84,7 +86,7 @@ class TestUnicodeData(unittest.TestCase):
         self.assertEqual(expected, self.ucd.lookup_by_name("LATIN_SMALL_LETTER_SHARP_S"))
         self.assertEqual(expected, self.ucd.lookup_by_name("latin_small_letter_sharp_s"))
         self.assertEqual(expected, self.ucd.lookup_by_name("latinsmalllettersharps"))
-        expected = self.ucd[unichr(0x200c)]
+        expected = self.ucd[six.unichr(0x200c)]
         self.assertEqual(expected, self.ucd.lookup_by_name("ZERO WIDTH NON-JOINER"))
         self.assertEqual(expected, self.ucd.lookup_by_name("ZERO_WIDTH_NON-JOINER"))
         self.assertEqual(expected, self.ucd.lookup_by_name("ZERO_WIDTH_NON_JOINER"))
@@ -102,8 +104,8 @@ class TestUnicodeData(unittest.TestCase):
 
         See https://www.unicode.org/faq/private_use.html#nonchar1 for more info on Unicode noncharacters.
         """
-        self.assertRaises(KeyError, self.ucd.get, unichr(0xFDD0))
-        self.assertRaises(KeyError, self.ucd.get, unichr(0xFDEF))
+        self.assertRaises(KeyError, self.ucd.get, six.unichr(0xFDD0))
+        self.assertRaises(KeyError, self.ucd.get, six.unichr(0xFDEF))
 
     def test_get_getitem(self):
         """Test that calls to get() and __getitem__() return the same data."""
@@ -128,8 +130,8 @@ class TestCasefold(unittest.TestCase):
 
     def test_default_casefold_non_unicode(self):
         """Test that passing a non-unicode string causes an exception to be raised."""
-        self.assertRaises(TypeError, casefold, "I")
-        self.assertRaises(TypeError, casefold, "hello")
+        self.assertRaises(TypeError, casefold, "I".encode("utf-8"))
+        self.assertRaises(TypeError, casefold, "hello".encode("utf-8"))
 
     def test_simple_casefold(self):
         """Test for simple casefolding."""
@@ -184,7 +186,7 @@ class TestPreserveSurrogates(unittest.TestCase):
 
     def test_preservesurrogates_non_unicode(self):
         """Test that passing a non-unicode string causes an exception to be raised."""
-        self.assertRaises(TypeError, preservesurrogates, "ABCDEF")
+        self.assertRaises(TypeError, preservesurrogates, "ABCDEF".encode("utf-8"))
 
 
 if __name__ == "__main__":
