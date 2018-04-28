@@ -9,6 +9,7 @@ import re
 import six
 
 
+#: Ranges of surrogate pairs
 HIGH_SURROGATE_START = u"\ud800"
 HIGH_SURROGATE_END = u"\udbff"
 LOW_SURROGATE_START = u"\udc00"
@@ -99,9 +100,56 @@ def _uax44lm2transform(s):
     return result.lower()
 
 
-# Documentation on the fields of UnicodeData.txt:
-# https://www.unicode.org/L2/L1999/UnicodeData.html
-# https://www.unicode.org/reports/tr44/#UnicodeData.txt
+def _to_unicode_scalar_value(s):
+    """
+    Helper function for converting a character or surrogate pair into a Unicode scalar value e.g.
+    "\ud800\udc00" -> 0x10000
+
+    The algorithm can be found in older versions of the Unicode Standard.
+
+    https://unicode.org/versions/Unicode3.0.0/ch03.pdf, Section 3.7, D28
+
+    Unicode scalar value: a number N from 0 to 0x10FFFF is defined by applying the following algorithm to a
+    character sequence S:
+    If S is a single, non-surrogate value U:
+    N = U
+    If S is a surrogate pair H, L:
+    N = (H - 0xD800) * 0x0400 + (L - 0xDC00) + 0x10000
+
+    :param s:
+    :return:
+    """
+    if len(s) == 1:
+        return ord(s)
+    elif len(s) == 2:
+        return (ord(s[0]) - 0xD800) * 0x0400 + (ord(s[1]) - 0xDC00) + 0x10000
+    else:
+        raise ValueError
+
+
+#: Dictionary for looking up the prefixes for derived names.
+#: See Unicode Standard section 4.8 and table 4-8 for more information on the name derivation rules NR1 and NR2.
+#: https://www.unicode.org/versions/Unicode10.0.0/ch04.pdf
+_nr_prefix_strings = {
+    six.moves.range( 0xAC00,  0xD7A3 + 1): "HANGUL SYLLABLE ",
+    six.moves.range( 0x3400,  0x4DB5 + 1): "CJK UNIFIED IDEOGRAPH-",
+    six.moves.range( 0x4E00,  0x9FEA + 1): "CJK UNIFIED IDEOGRAPH-",
+    six.moves.range(0x20000, 0x2A6D6 + 1): "CJK UNIFIED IDEOGRAPH-",
+    six.moves.range(0x2A700, 0x2B734 + 1): "CJK UNIFIED IDEOGRAPH-",
+    six.moves.range(0x2B740, 0x2B81D + 1): "CJK UNIFIED IDEOGRAPH-",
+    six.moves.range(0x2B820, 0x2CEA1 + 1): "CJK UNIFIED IDEOGRAPH-",
+    six.moves.range(0x2CEB0, 0x2EBE0 + 1): "CJK UNIFIED IDEOGRAPH-",
+    six.moves.range(0x17000, 0x187EC + 1): "TANGUT IDEOGRAPH-",
+    six.moves.range(0x1B170, 0x1B2FB + 1): "NUSHU CHARACTER-",
+    six.moves.range( 0xF900,  0xFA6D + 1): "CJK COMPATIBILITY IDEOGRAPH-",
+    six.moves.range( 0xFA70,  0xFAD9 + 1): "CJK COMPATIBILITY IDEOGRAPH-",
+    six.moves.range(0x2F800, 0x2FA1D + 1): "CJK COMPATIBILITY IDEOGRAPH-"
+}
+
+
+#: Documentation on the fields of UnicodeData.txt:
+#: https://www.unicode.org/L2/L1999/UnicodeData.html
+#: https://www.unicode.org/reports/tr44/#UnicodeData.txt
 UnicodeCharacter = namedtuple("UnicodeCharacter", ["code", "name", "category", "combining", "bidi", "decomposition",
                                                    "decimal", "digit", "numeric", "mirrored", "unicode_1_name",
                                                    "iso_comment", "uppercase", "lowercase", "titlecase"])
@@ -154,7 +202,7 @@ class UnicodeData:
         :param c: Character to look up.
         :return: UnicodeCharacter instance with data associated with the character.
         """
-        return self._unicode_character_database[c]
+        return self.__getitem__(c)
 
     def __getitem__(self, item):
         """
@@ -163,7 +211,26 @@ class UnicodeData:
         :param item: Character to look up.
         :return: UnicodeCharacter instance with data associated with the character.
         """
-        return self._unicode_character_database.__getitem__(item)
+        try:
+            return self._unicode_character_database.__getitem__(item)
+        except KeyError:
+            # Not all of the code points are individually listed in the UnicodeData.txt file.  If our initial attempt at
+            # lookup fails, let's see if we are in the "compressed" ranges of UnicodeData.txt and if so we will try
+            # inferring the correct UnicodeCharacter by using the Name Derivation Rules.
+            # See the Unicode Standard, ch. 4, section 4.8, Unicode Name Property
+            lookup_index = _to_unicode_scalar_value(item)
+            for lookup_range, prefix_string in _nr_prefix_strings.items():
+                if lookup_index in lookup_range:
+                    hex_code = hex(lookup_index)[2:].upper().zfill(4)
+                    new_name = prefix_string + hex_code
+                    try:
+                        exemplar_lookup = six.unichr(lookup_range[0])
+                    except ValueError:  # We get this exception if we are running on a narrow Python build
+                        exemplar_lookup = (u"\\U%08x" % lookup_range[0]).decode("unicode-escape")
+                    exemplar = self._unicode_character_database.__getitem__(exemplar_lookup)
+                    # The properties in the ranges are uniform, so all we need to change is the code and the name.
+                    return exemplar._replace(code=u"U+"+hex_code, name=new_name)
+            raise
 
     def __iter__(self):
         """Function for iterating through the keys of the data."""
