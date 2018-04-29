@@ -5,6 +5,7 @@ from fractions import Fraction
 import codecs
 import os
 import re
+import struct
 
 import six
 
@@ -55,7 +56,7 @@ def _unichr(i):
         return six.unichr(i)
     except ValueError:
         # Workaround the error "ValueError: unichr() arg not in range(0x10000) (narrow Python build)"
-        return ("\\U%08x" % i).decode("unicode-escape")
+        return struct.pack("i", i).decode("utf-32")
 
 
 def _hexstr_to_unichr(s):
