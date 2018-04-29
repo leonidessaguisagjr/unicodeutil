@@ -6,6 +6,7 @@ import unittest
 import six
 
 from unicodeutil import CaseFoldingMap, UnicodeData, casefold, preservesurrogates
+from unicodeutil.unicodeutil import _nr_prefix_strings, _padded_hex, _unichr
 
 
 class TestCaseFoldingMap(unittest.TestCase):
@@ -110,6 +111,23 @@ class TestUnicodeData(unittest.TestCase):
     def test_get_getitem(self):
         """Test that calls to get() and __getitem__() return the same data."""
         self.assertEqual(self.ucd.get(u"ẞ"), self.ucd[u"ẞ"])
+
+    def test_lookup_compressed_char(self):
+        """
+        Test that looking up characters in the "compressed" ranges of UnicodeData.txt are successful.  See the Unicode
+        Standard, ch. 4, section 4.8 for more information on how the compression works.
+        """
+        for lookup_range, prefix_string in _nr_prefix_strings.items():
+            start_range = lookup_range[0]
+            end_range = lookup_range[-1]
+            range_size = end_range - start_range
+            mid_range = start_range + (range_size // 2)
+            quarter_range = start_range + (range_size // 4)
+            three_quarter_range = start_range + (range_size * 3 // 4)
+            test_ranges = [start_range, quarter_range, mid_range, three_quarter_range, end_range]
+            for item in test_ranges:
+                unichar = self.ucd[_unichr(item)]
+                self.assertEqual(prefix_string + _padded_hex(item), unichar.name)
 
 
 class TestCasefold(unittest.TestCase):

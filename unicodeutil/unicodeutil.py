@@ -42,18 +42,49 @@ def preservesurrogates(s):
     return surrogates_regex.findall(s)
 
 
-def _hexstr_to_unichr(s):
+def _unichr(i):
     """
-    Helper function for taking a hex string and returning a unicode char.
+    Helper function for taking a Unicode scalar value and returning a Unicode character.
 
-    :param s: hex string to convert
-    :return: unicode character
+    :param s: Unicode scalar value to convert.
+    :return: Unicode character
     """
+    if not isinstance(i, int):
+        raise TypeError
     try:
-        return six.unichr(int(s, 16))
+        return six.unichr(i)
     except ValueError:
         # Workaround the error "ValueError: unichr() arg not in range(0x10000) (narrow Python build)"
-        return ("\\U%08x" % int(s, 16)).decode("unicode-escape")
+        return ("\\U%08x" % i).decode("unicode-escape")
+
+
+def _hexstr_to_unichr(s):
+    """
+    Helper function for taking a hex string and returning a Unicode character.
+
+    :param s: hex string to convert
+    :return: Unicode character
+    """
+    return _unichr(int(s, 16))
+
+
+def _padded_hex(i, pad_width=4, uppercase=True):
+    """
+    Helper function for taking an integer and returning a hex string.  The string will be padded on the left with zeroes
+    until the string is of the specified width.  For example:
+
+    _padded_hex(31, padding=4, uppercase=True) -> "001F"
+
+    :param i: integer to convert to a hex string
+    :param pad_width: (int specifying the minimum width of the output string.  String will be padded on the left with '0'
+                      as needed.
+    :param uppercase: Boolean indicating if we should use uppercase characters in the output string (default=True).
+    :return: Hex string representation of the input integer.
+    """
+    result = hex(i)[2:]  # Remove the leading "0x"
+    if uppercase:
+        result = result.upper()
+    return result.zfill(pad_width)
 
 
 def _uax44lm2transform(s):
@@ -147,6 +178,32 @@ _nr_prefix_strings = {
 }
 
 
+def _is_derived(i):
+    """
+    Helper function for determining if a Unicode scalar value falls into one of the ranges of derived names.
+
+    :param i: Unicode scalar value.
+    :return: Boolean.  True if the value is in one of the derived ranges.  False otherwise.
+    """
+    for lookup_range in _nr_prefix_strings.keys():
+        if i in lookup_range:
+            return True
+    return False
+
+
+def _get_nr_prefix(i):
+    """
+    Helper function for looking up the derived name prefix associated with a Unicode scalar value.
+
+    :param i: Unicode scalar value.
+    :return: String with the derived name prefix.
+    """
+    for lookup_range, prefix_string in _nr_prefix_strings.items():
+        if i in lookup_range:
+            return prefix_string
+    raise ValueError("No prefix string associated with {0}!".format(i))
+
+
 #: Documentation on the fields of UnicodeData.txt:
 #: https://www.unicode.org/L2/L1999/UnicodeData.html
 #: https://www.unicode.org/reports/tr44/#UnicodeData.txt
@@ -178,6 +235,9 @@ class UnicodeData:
                 if not line.strip():
                     continue
                 data = line.strip().split(";")
+                # Replace the start/end range markers with their proper derived names.
+                if data[1].endswith((u"First>", u"Last>")) and _is_derived(int(data[0], 16)):
+                    data[1] = _get_nr_prefix(int(data[0], 16)) + data[0]
                 data[3] = int(data[3])  # Convert the Canonical Combining Class value into an int.
                 if data[5]:  # Convert the contents of the decomposition into characters, preserving tag info.
                     data[5] = u" ".join([_hexstr_to_unichr(s) if not tag.match(s) else s for s in data[5].split()])
@@ -221,12 +281,9 @@ class UnicodeData:
             lookup_index = _to_unicode_scalar_value(item)
             for lookup_range, prefix_string in _nr_prefix_strings.items():
                 if lookup_index in lookup_range:
-                    hex_code = hex(lookup_index)[2:].upper().zfill(4)
+                    hex_code = _padded_hex(lookup_index)
                     new_name = prefix_string + hex_code
-                    try:
-                        exemplar_lookup = six.unichr(lookup_range[0])
-                    except ValueError:  # We get this exception if we are running on a narrow Python build
-                        exemplar_lookup = (u"\\U%08x" % lookup_range[0]).decode("unicode-escape")
+                    exemplar_lookup = _unichr(lookup_range[0])
                     exemplar = self._unicode_character_database.__getitem__(exemplar_lookup)
                     # The properties in the ranges are uniform, so all we need to change is the code and the name.
                     return exemplar._replace(code=u"U+"+hex_code, name=new_name)
