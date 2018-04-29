@@ -1,7 +1,7 @@
 ``unicodeutil``
 ===============
 
-Python classes and functions for working with Unicode® data.  This was initially built with Python 2 in mind but has also been tested with Python 3.
+Python classes and functions for working with Unicode® data.  This was initially built with Python 2 in mind but has also been tested with Python 3, PyPy and PyPy3.
 
 
 Dependencies
