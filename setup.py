@@ -1,13 +1,19 @@
 from setuptools import setup
+from codecs import open
+from os import path
 
-def readme():
-      with open("README.rst") as f:
-            f.read()
+
+here = path.abspath(path.dirname(__file__))
+
+# Get the long description from the README file
+with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
+    long_description = f.read()
 
 setup(name='unicodeutil',
-      version='0.1.dev0',
+      version='0.1.dev1',
       description='Classes and functions for working with Unicode data.',
-      long_description=readme(),
+      long_description=long_description,
+      long_description_content_type='text/x-rst',
       classifiers=[
             "Development Status :: 3 - Alpha",
             "Intended Audience :: Developers",
