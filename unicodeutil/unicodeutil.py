@@ -205,6 +205,43 @@ def _get_nr_prefix(i):
     raise ValueError("No prefix string associated with {0}!".format(i))
 
 
+def _hangul_syllable_to_full_canonical_decomposition(i):
+    """
+    Helper function for taking a Unicode scalar value representing a Hangul syllable and decomposing it into a tuple
+    representing the scalar values of the fully decomposed (full canonical decomposition) Jamo.  If the Unicode scalar
+    value passed in is not in the range of Hangul syllable values (as defined in UnicodeData.txt), a ValueError will be
+    raised.
+
+    The algorithm for doing the full decomposition is described in the Unicode Standard, ch. 03, section 3.12,
+    "Conjoining Jamo Behavior".
+
+    Example: U+D4DB -> (U+1111, U+1171, U+11B6)
+
+    :param i: Unicode scalar value for Hangul syllable
+    :return: Tuple of Unicode scalar values for the fully decomposed Jamo.
+    """
+    if i not in range(0xAC00, 0xD7A3 + 1):  # Range of Hangul characters as defined in UnicodeData.txt
+        raise ValueError
+    s_base = 0xAC00  # U+AC00, start of Hangul syllable range
+    l_base = 0x1100  # U+1100, start of Hangul leading consonant / syllable-initial range i.e. Hangul Choseong
+    v_base = 0x1161  # U+1161, start of Hangul vowel / syllable-peak range i.e Hangul Jungseong
+    t_base = 0x11a7  # U+11A7, start of Hangul trailing consonant / syllable-final range i.e. Hangul Jongseong
+    l_count = 19  # Count of Hangul Choseong
+    v_count = 21  # Count of Hangul Jungseong
+    t_count = 28  # Count of Hangul Jongseong + 1
+    n_count = v_count * t_count
+    s_count = l_count * n_count
+
+    s_index = i - s_base
+    l_index = s_index // n_count
+    v_index = (s_index % n_count) // t_count
+    t_index = s_index % t_count
+    l_part = l_base + l_index
+    v_part = v_base + v_index
+    t_part = (t_base + t_index) if t_index > 0 else None
+    return l_part, v_part, t_part
+
+
 #: Documentation on the fields of UnicodeData.txt:
 #: https://www.unicode.org/L2/L1999/UnicodeData.html
 #: https://www.unicode.org/reports/tr44/#UnicodeData.txt
@@ -220,7 +257,31 @@ class UnicodeData:
         """Initialize the class by building the Unicode character database."""
         self._unicode_character_database = {}
         self._name_database = {}
+        self._jamo_short_names = {}
+        self._load_jamo_short_names()
         self._build_unicode_character_database()
+
+    def _load_jamo_short_names(self):
+        """
+        Function for parsing the Jamo short names from the Unicode Character
+        Database (UCD) and generating a lookup table.  For more info on how
+        this is used, see the Unicode Standard, ch. 03, section 3.12,
+        "Conjoining Jamo Behavior" and ch. 04, section 4.8, "Name".
+
+        https://www.unicode.org/versions/latest/ch03.pdf
+        https://www.unicode.org/versions/latest/ch04.pdf
+        """
+        filename = "Jamo.txt"
+        current_dir = os.path.abspath(os.path.dirname(__file__))
+        with codecs.open(os.path.join(current_dir, filename), mode="r", encoding="utf-8") as fp:
+            for line in fp:
+                if not line.strip() or line.startswith("#"):
+                    continue  # Skip empty lines or lines that are comments (comments start with '#')
+                data = line.strip().split(";")
+                code = _hexstr_to_unichr(data[0])
+                charinfo = data[1].split("#")
+                char = charinfo[0].strip()
+                self._jamo_short_names[code] = char
 
     def _build_unicode_character_database(self):
         """
@@ -238,6 +299,7 @@ class UnicodeData:
                 data = line.strip().split(";")
                 # Replace the start/end range markers with their proper derived names.
                 if data[1].endswith((u"First>", u"Last>")) and _is_derived(int(data[0], 16)):
+                    # TODO: Bug: For Hangul, we need to use naming rule NR1
                     data[1] = _get_nr_prefix(int(data[0], 16)) + data[0]
                 data[3] = int(data[3])  # Convert the Canonical Combining Class value into an int.
                 if data[5]:  # Convert the contents of the decomposition into characters, preserving tag info.
@@ -283,6 +345,7 @@ class UnicodeData:
             for lookup_range, prefix_string in _nr_prefix_strings.items():
                 if lookup_index in lookup_range:
                     hex_code = _padded_hex(lookup_index)
+                    # TODO: Bug: For Hangul, we need to use naming rule NR1
                     new_name = prefix_string + hex_code
                     exemplar_lookup = _unichr(lookup_range[0])
                     exemplar = self._unicode_character_database.__getitem__(exemplar_lookup)
