@@ -237,18 +237,27 @@ class TestDecomposeHangulSyllable(unittest.TestCase):
         # Example from Unicode Standard, ch. 03, section 3.12
         self.assertEqual((0xD4CC, 0x11B6), decompose_hangul_syllable(0xD4DB))
         self.assertEqual((0x1111, 0x1171), decompose_hangul_syllable(0xD4CC))
+        # Example from Unicode® Standard Annex #44, https://unicode.org/reports/tr44/#Character_Decomposition_Mappings
+        self.assertEqual((0xCE20, 0x11B8), decompose_hangul_syllable(0xCE31))
+        self.assertEqual((0x110E, 0x1173), decompose_hangul_syllable(0xCE20))
 
     def test_decompose_hangul_syllable_canonical_decomposition(self):
         """Test that the decomposition works if we explicitly set fully_decompose=False."""
         # Example from Unicode Standard, ch. 03, section 3.12
         self.assertEqual((0xD4CC, 0x11B6), decompose_hangul_syllable(0xD4DB, fully_decompose=False))
-        self.assertEqual((0x1111, 0x1171), decompose_hangul_syllable(0xD4CC))
+        self.assertEqual((0x1111, 0x1171), decompose_hangul_syllable(0xD4CC, fully_decompose=False))
+        # Example from Unicode® Standard Annex #44, https://unicode.org/reports/tr44/#Character_Decomposition_Mappings
+        self.assertEqual((0xCE20, 0x11B8), decompose_hangul_syllable(0xCE31, fully_decompose=False))
+        self.assertEqual((0x110E, 0x1173), decompose_hangul_syllable(0xCE20, fully_decompose=False))
 
     def test_decompose_hangul_syllable_full_canonical_decomposition(self):
         """Test that the decomposition works if we explicitly set fully_decompose=True."""
         # Example from Unicode Standard, ch. 03, section 3.12
         self.assertEqual((0x1111, 0x1171, 0x11B6), decompose_hangul_syllable(0xD4DB, fully_decompose=True))
         self.assertEqual((0x1111, 0x1171, None), decompose_hangul_syllable(0xD4CC, fully_decompose=True))
+        # Example from Unicode® Standard Annex #44, https://unicode.org/reports/tr44/#Character_Decomposition_Mappings
+        self.assertEqual((0x110E, 0x1173, 0x11B8), decompose_hangul_syllable(0xCE31, fully_decompose=True))
+        self.assertEqual((0x110E, 0x1173, None), decompose_hangul_syllable(0xCE20, fully_decompose=True))
 
 
 if __name__ == "__main__":
