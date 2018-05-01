@@ -127,19 +127,50 @@ The function ``decompose_hangul_syllable(hangul_syllable, fully_decompose=False)
 Example usage:
 ^^^^^^^^^^^^^^
 
-Using Python 3::
+Given the following code snippet::
 
-   >>> from unicodeutil import decompose_hangul_syllable
-   >>> canonical = decompose_hangul_syllable(0xD4DB)
-   >>> full = decompose_hangul_syllable(0xD4DB, fully_decompose=True)
-   >>> canonical
-   (54476, 4534)
-   >>> ['U+' + hex(jamo)[2:].upper() for jamo in canonical]
-   ['U+D4CC', 'U+11B6']
-   >>> full
-   (4369, 4465, 4534)
-   >>> ['U+' + hex(jamo)[2:].upper() for jamo in full]
-   ['U+1111', 'U+1171', 'U+11B6']
+   import sys
+
+   import six
+
+   from unicodeutil import UnicodeData, decompose_hangul_syllable
+
+   ucd = UnicodeData()
+
+   def pprint_decomposed(hangul, decomposition):
+       hangul_data = ucd[six.unichr(hangul)]
+       print("{0} -> <{1}>".format(
+           " ".join([hangul_data.code, hangul_data.name]),
+           ", ".join([" ".join([jamo_data.code, jamo_data.name])
+                      for jamo_data in [ucd[six.unichr(jamo)]
+                                        for jamo in decomposition if jamo]])
+       ))
+
+   def main():
+       hangul = int(sys.argv[1], 16)
+       print("Canonical Decomposition:")
+       pprint_decomposed(hangul,
+                         decompose_hangul_syllable(hangul, fully_decompose=False))
+       print("Full Canonical Decomposition:")
+       pprint_decomposed(hangul,
+                         decompose_hangul_syllable(hangul, fully_decompose=True))
+
+
+   if __name__ == "__main__":
+       main()
+
+Will produce the following (tested in Python 2 and Python 3)::
+
+   $ python pprint_decomposed.py 0xD4DB
+   Canonical Decomposition:
+   U+D4DB HANGUL SYLLABLE PWILH -> <U+D4CC HANGUL SYLLABLE PWI, U+11B6 HANGUL JONGSEONG RIEUL-HIEUH>
+   Full Canonical Decomposition:
+   U+D4DB HANGUL SYLLABLE PWILH -> <U+1111 HANGUL CHOSEONG PHIEUPH, U+1171 HANGUL JUNGSEONG WI, U+11B6 HANGUL JONGSEONG RIEUL-HIEUH>
+   $ python3 pprint_decomposed.py 0xD4CC
+   Canonical Decomposition:
+   U+D4CC HANGUL SYLLABLE PWI -> <U+1111 HANGUL CHOSEONG PHIEUPH, U+1171 HANGUL JUNGSEONG WI>
+   Full Canonical Decomposition:
+   U+D4CC HANGUL SYLLABLE PWI -> <U+1111 HANGUL CHOSEONG PHIEUPH, U+1171 HANGUL JUNGSEONG WI>
 
 
 License

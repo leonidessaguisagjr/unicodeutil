@@ -154,7 +154,7 @@ def decompose_hangul_syllable(hangul_syllable, fully_decompose=False):
     else:
         if _get_hangul_syllable_type(hangul_syllable) == "LV":  # Hangul_Syllable_Type = LV
             l_index = s_index // n_count
-            v_index = (s_index % n_count)
+            v_index = (s_index % n_count) // t_count
             l_part = l_base + l_index
             v_part = v_base + v_index
             return l_part, v_part

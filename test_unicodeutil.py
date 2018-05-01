@@ -236,16 +236,19 @@ class TestDecomposeHangulSyllable(unittest.TestCase):
         """Test that the default decomposition works."""
         # Example from Unicode Standard, ch. 03, section 3.12
         self.assertEqual((0xD4CC, 0x11B6), decompose_hangul_syllable(0xD4DB))
+        self.assertEqual((0x1111, 0x1171), decompose_hangul_syllable(0xD4CC))
 
     def test_decompose_hangul_syllable_canonical_decomposition(self):
         """Test that the decomposition works if we explicitly set fully_decompose=False."""
         # Example from Unicode Standard, ch. 03, section 3.12
         self.assertEqual((0xD4CC, 0x11B6), decompose_hangul_syllable(0xD4DB, fully_decompose=False))
+        self.assertEqual((0x1111, 0x1171), decompose_hangul_syllable(0xD4CC))
 
     def test_decompose_hangul_syllable_full_canonical_decomposition(self):
         """Test that the decomposition works if we explicitly set fully_decompose=True."""
         # Example from Unicode Standard, ch. 03, section 3.12
         self.assertEqual((0x1111, 0x1171, 0x11B6), decompose_hangul_syllable(0xD4DB, fully_decompose=True))
+        self.assertEqual((0x1111, 0x1171, None), decompose_hangul_syllable(0xD4CC, fully_decompose=True))
 
 
 if __name__ == "__main__":
