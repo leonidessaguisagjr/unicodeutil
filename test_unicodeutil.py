@@ -7,6 +7,7 @@ import six
 
 from unicodeutil import CaseFoldingMap, UnicodeData, casefold, decompose_hangul_syllable, preservesurrogates
 from unicodeutil.unicodeutil import _nr_prefix_strings, _padded_hex, _unichr
+from unicodeutil.hangulutil import _get_hangul_syllable_name
 
 
 class TestCaseFoldingMap(unittest.TestCase):
@@ -117,6 +118,9 @@ class TestUnicodeData(unittest.TestCase):
         Test that looking up characters in the "compressed" ranges of UnicodeData.txt are successful.  See the Unicode
         Standard, ch. 4, section 4.8 for more information on how the compression works.
         """
+        # Test naming rule NR1 with an example from Unicode Standard, ch. 03, section 3.12
+        self.assertEqual("HANGUL SYLLABLE PWILH", self.ucd[six.unichr(0xD4DB)].name)
+        # Go through each range and test characters from the start, middle and end of the ranges
         for lookup_range, prefix_string in _nr_prefix_strings.items():
             start_range = lookup_range[0]
             end_range = lookup_range[-1]
@@ -127,7 +131,10 @@ class TestUnicodeData(unittest.TestCase):
             test_ranges = [start_range, quarter_range, mid_range, three_quarter_range, end_range]
             for item in test_ranges:
                 unichar = self.ucd[_unichr(item)]
-                self.assertEqual(prefix_string + _padded_hex(item), unichar.name)
+                if prefix_string.startswith("HANGUL SYLLABLE"):  # Check for naming rule NR1
+                    self.assertEqual(prefix_string + _get_hangul_syllable_name(item), unichar.name)
+                else:  # Check for naming rule NR2
+                    self.assertEqual(prefix_string + _padded_hex(item), unichar.name)
 
 
 class TestCasefold(unittest.TestCase):
@@ -207,19 +214,37 @@ class TestPreserveSurrogates(unittest.TestCase):
         self.assertRaises(TypeError, preservesurrogates, "ABCDEF".encode("utf-8"))
 
 
+class TestGetHangulSyllableName(unittest.TestCase):
+    """Class for testing the _get_hangul_syllable_name(hangul_syllable) function."""
+
+    def test_lookup(self):
+        """Test that lookup works and the correct syllable names are returned."""
+        # Example from the Unicode Standard, ch. 03, section 3.12
+        self.assertEqual("PWILH", _get_hangul_syllable_name(0xD4DB))
+        # Examples from the start, middle and end of the Hangul syllable range
+        self.assertEqual("GA", _get_hangul_syllable_name(0xAC00))
+        self.assertEqual("DDWELM", _get_hangul_syllable_name(0xB6DE))
+        self.assertEqual("SWAELT", _get_hangul_syllable_name(0xC1D1))
+        self.assertEqual("CENH", _get_hangul_syllable_name(0xCCBA))
+        self.assertEqual("HIH", _get_hangul_syllable_name(0xD7A3))
+
+
 class TestDecomposeHangulSyllable(unittest.TestCase):
     """Class for testing the decompose_hangul_syllable(hangul_syllable) function."""
 
     def test_decompose_hangul_syllable_default(self):
         """Test that the default decomposition works."""
+        # Example from Unicode Standard, ch. 03, section 3.12
         self.assertEqual((0xD4CC, 0x11B6), decompose_hangul_syllable(0xD4DB))
 
     def test_decompose_hangul_syllable_canonical_decomposition(self):
         """Test that the decomposition works if we explicitly set fully_decompose=False."""
+        # Example from Unicode Standard, ch. 03, section 3.12
         self.assertEqual((0xD4CC, 0x11B6), decompose_hangul_syllable(0xD4DB, fully_decompose=False))
 
     def test_decompose_hangul_syllable_full_canonical_decomposition(self):
         """Test that the decomposition works if we explicitly set fully_decompose=True."""
+        # Example from Unicode Standard, ch. 03, section 3.12
         self.assertEqual((0x1111, 0x1171, 0x11B6), decompose_hangul_syllable(0xD4DB, fully_decompose=True))
 
 

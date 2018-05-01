@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 from collections import defaultdict, namedtuple
 from fractions import Fraction
 import codecs
@@ -8,6 +6,11 @@ import re
 import struct
 
 import six
+
+try:  # Python 2 style import
+    from hangulutil import _get_hangul_syllable_name
+except ImportError:  # Python 3 style import
+    from .hangulutil import _get_hangul_syllable_name
 
 
 #: Ranges of surrogate pairs
@@ -220,31 +223,7 @@ class UnicodeData:
         """Initialize the class by building the Unicode character database."""
         self._unicode_character_database = {}
         self._name_database = {}
-        self._jamo_short_names = {}
-        self._load_jamo_short_names()
         self._build_unicode_character_database()
-
-    def _load_jamo_short_names(self):
-        """
-        Function for parsing the Jamo short names from the Unicode Character
-        Database (UCD) and generating a lookup table.  For more info on how
-        this is used, see the Unicode Standard, ch. 03, section 3.12,
-        "Conjoining Jamo Behavior" and ch. 04, section 4.8, "Name".
-
-        https://www.unicode.org/versions/latest/ch03.pdf
-        https://www.unicode.org/versions/latest/ch04.pdf
-        """
-        filename = "Jamo.txt"
-        current_dir = os.path.abspath(os.path.dirname(__file__))
-        with codecs.open(os.path.join(current_dir, filename), mode="r", encoding="utf-8") as fp:
-            for line in fp:
-                if not line.strip() or line.startswith("#"):
-                    continue  # Skip empty lines or lines that are comments (comments start with '#')
-                data = line.strip().split(";")
-                code = _hexstr_to_unichr(data[0])
-                charinfo = data[1].split("#")
-                char = charinfo[0].strip()
-                self._jamo_short_names[code] = char
 
     def _build_unicode_character_database(self):
         """
@@ -262,8 +241,11 @@ class UnicodeData:
                 data = line.strip().split(";")
                 # Replace the start/end range markers with their proper derived names.
                 if data[1].endswith((u"First>", u"Last>")) and _is_derived(int(data[0], 16)):
-                    # TODO: Bug: For Hangul, we need to use naming rule NR1
-                    data[1] = _get_nr_prefix(int(data[0], 16)) + data[0]
+                    data[1] = _get_nr_prefix(int(data[0], 16))
+                    if data[1].startswith("HANGUL SYLLABLE"):  # For Hangul syllables, use naming rule NR1
+                        data[1] += _get_hangul_syllable_name(int(data[0], 16))
+                    else:  # Others should use naming rule NR2
+                        data[1] += data[0]
                 data[3] = int(data[3])  # Convert the Canonical Combining Class value into an int.
                 if data[5]:  # Convert the contents of the decomposition into characters, preserving tag info.
                     data[5] = u" ".join([_hexstr_to_unichr(s) if not tag.match(s) else s for s in data[5].split()])
@@ -308,8 +290,11 @@ class UnicodeData:
             for lookup_range, prefix_string in _nr_prefix_strings.items():
                 if lookup_index in lookup_range:
                     hex_code = _padded_hex(lookup_index)
-                    # TODO: Bug: For Hangul, we need to use naming rule NR1
-                    new_name = prefix_string + hex_code
+                    new_name = prefix_string
+                    if prefix_string.startswith("HANGUL SYLLABLE"):  # For Hangul, we should use naming rule NR1
+                        new_name += _get_hangul_syllable_name(lookup_index)
+                    else:  # Everything else uses naming rule NR2
+                        new_name += hex_code
                     exemplar_lookup = _unichr(lookup_range[0])
                     exemplar = self._unicode_character_database.__getitem__(exemplar_lookup)
                     # The properties in the ranges are uniform, so all we need to change is the code and the name.

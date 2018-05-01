@@ -115,9 +115,36 @@ Using Python 2::
    >>> ucd.lookup_by_name("latin small letter sharp_s")
    UnicodeCharacter(code=u'U+00DF', name='LATIN SMALL LETTER SHARP S', category='Ll', combining=0, bidi='L', decomposition='', decimal='', digit='', numeric='', mirrored='N', unicode_1_name='', iso_comment='', uppercase='', lowercase='', titlecase='')
 
+
+Decomposing Hangul Syllables into Jamo
+--------------------------------------
+
+The function ``decompose_hangul_syllable(hangul_syllable, fully_decompose=False)`` takes the Unicode scalar value of a hangul syllable and will either do a canonical decomposition (default, fully_decompose=False) or a full canonical decomposition (fully_decompose=True) of a Hangul syllable.  The return value will be a tuple of Unicode scalar values corresponding to the Jamo that the Hangul syllable has been decomposed into.  For example (taken from the `Unicode Standard, ch. 03, section 3.12, Conjoing Jamo Behavior <https://www.unicode.org/versions/latest/ch03.pdf>`_)::
+
+   U+D4DB -> <U+D4CC, U+11B6>  # Canonical Decomposition (default)
+   U+D4DB -> <U+1111, U+1171, U+11B6>  # Full Canonical Decomposition
+
+Example usage:
+^^^^^^^^^^^^^^
+
+Using Python 3::
+
+   >>> from unicodeutil import decompose_hangul_syllable
+   >>> canonical = decompose_hangul_syllable(0xD4DB)
+   >>> full = decompose_hangul_syllable(0xD4DB, fully_decompose=True)
+   >>> canonical
+   (54476, 4534)
+   >>> ['U+' + hex(jamo)[2:].upper() for jamo in canonical]
+   ['U+D4CC', 'U+11B6']
+   >>> full
+   (4369, 4465, 4534)
+   >>> ['U+' + hex(jamo)[2:].upper() for jamo in full]
+   ['U+1111', 'U+1171', 'U+11B6']
+
+
 License
 -------
 
 This is released under an MIT license.  See the ``LICENSE`` file in this repository for more information.
 
-The included ``CaseFolding.txt``, ``Jamo.txt`` and ``UnicodeData.txt`` files are part of the Unicode® Character Database that is published by Unicode, Inc.  Please consult the `Unicode® Terms of Use <https://www.unicode.org/copyright.html>`_ prior to use.
+The included ``CaseFolding.txt``, ``HangulSyllableType.txt``, ``Jamo.txt`` and ``UnicodeData.txt`` files are part of the Unicode® Character Database that is published by Unicode, Inc.  Please consult the `Unicode® Terms of Use <https://www.unicode.org/copyright.html>`_ prior to use.
