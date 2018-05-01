@@ -5,7 +5,7 @@ import unittest
 
 import six
 
-from unicodeutil import CaseFoldingMap, UnicodeData, casefold, preservesurrogates
+from unicodeutil import CaseFoldingMap, UnicodeData, casefold, decompose_hangul_syllable, preservesurrogates
 from unicodeutil.unicodeutil import _nr_prefix_strings, _padded_hex, _unichr
 
 
@@ -205,6 +205,22 @@ class TestPreserveSurrogates(unittest.TestCase):
     def test_preservesurrogates_non_unicode(self):
         """Test that passing a non-unicode string causes an exception to be raised."""
         self.assertRaises(TypeError, preservesurrogates, "ABCDEF".encode("utf-8"))
+
+
+class TestDecomposeHangulSyllable(unittest.TestCase):
+    """Class for testing the decompose_hangul_syllable(hangul_syllable) function."""
+
+    def test_decompose_hangul_syllable_default(self):
+        """Test that the default decomposition works."""
+        self.assertEqual((0xD4CC, 0x11B6), decompose_hangul_syllable(0xD4DB))
+
+    def test_decompose_hangul_syllable_canonical_decomposition(self):
+        """Test that the decomposition works if we explicitly set fully_decompose=False."""
+        self.assertEqual((0xD4CC, 0x11B6), decompose_hangul_syllable(0xD4DB, fully_decompose=False))
+
+    def test_decompose_hangul_syllable_full_canonical_decomposition(self):
+        """Test that the decomposition works if we explicitly set fully_decompose=True."""
+        self.assertEqual((0x1111, 0x1171, 0x11B6), decompose_hangul_syllable(0xD4DB, fully_decompose=True))
 
 
 if __name__ == "__main__":

@@ -205,43 +205,6 @@ def _get_nr_prefix(i):
     raise ValueError("No prefix string associated with {0}!".format(i))
 
 
-def _hangul_syllable_to_full_canonical_decomposition(i):
-    """
-    Helper function for taking a Unicode scalar value representing a Hangul syllable and decomposing it into a tuple
-    representing the scalar values of the fully decomposed (full canonical decomposition) Jamo.  If the Unicode scalar
-    value passed in is not in the range of Hangul syllable values (as defined in UnicodeData.txt), a ValueError will be
-    raised.
-
-    The algorithm for doing the full decomposition is described in the Unicode Standard, ch. 03, section 3.12,
-    "Conjoining Jamo Behavior".
-
-    Example: U+D4DB -> (U+1111, U+1171, U+11B6)
-
-    :param i: Unicode scalar value for Hangul syllable
-    :return: Tuple of Unicode scalar values for the fully decomposed Jamo.
-    """
-    if i not in range(0xAC00, 0xD7A3 + 1):  # Range of Hangul characters as defined in UnicodeData.txt
-        raise ValueError
-    s_base = 0xAC00  # U+AC00, start of Hangul syllable range
-    l_base = 0x1100  # U+1100, start of Hangul leading consonant / syllable-initial range i.e. Hangul Choseong
-    v_base = 0x1161  # U+1161, start of Hangul vowel / syllable-peak range i.e Hangul Jungseong
-    t_base = 0x11a7  # U+11A7, start of Hangul trailing consonant / syllable-final range i.e. Hangul Jongseong
-    l_count = 19  # Count of Hangul Choseong
-    v_count = 21  # Count of Hangul Jungseong
-    t_count = 28  # Count of Hangul Jongseong + 1
-    n_count = v_count * t_count
-    s_count = l_count * n_count
-
-    s_index = i - s_base
-    l_index = s_index // n_count
-    v_index = (s_index % n_count) // t_count
-    t_index = s_index % t_count
-    l_part = l_base + l_index
-    v_part = v_base + v_index
-    t_part = (t_base + t_index) if t_index > 0 else None
-    return l_part, v_part, t_part
-
-
 #: Documentation on the fields of UnicodeData.txt:
 #: https://www.unicode.org/L2/L1999/UnicodeData.html
 #: https://www.unicode.org/reports/tr44/#UnicodeData.txt
