@@ -118,13 +118,14 @@ Using Python 2::
    UnicodeCharacter(code=u'U+00DF', name='LATIN SMALL LETTER SHARP S', category='Ll', combining=0, bidi='L', decomposition='', decimal='', digit='', numeric='', mirrored='N', unicode_1_name='', iso_comment='', uppercase='', lowercase='', titlecase='')
 
 
-Decomposing Hangul Syllables into Jamo
---------------------------------------
+Composing and decomposing Hangul Syllables
+------------------------------------------
 
-The function ``decompose_hangul_syllable(hangul_syllable, fully_decompose=False)`` takes the Unicode scalar value of a hangul syllable and will either do a canonical decomposition (default, fully_decompose=False) or a full canonical decomposition (fully_decompose=True) of a Hangul syllable.  The return value will be a tuple of Unicode scalar values corresponding to the Jamo that the Hangul syllable has been decomposed into.  For example (taken from the `Unicode Standard, ch. 03, section 3.12, Conjoing Jamo Behavior <https://www.unicode.org/versions/latest/ch03.pdf>`_)::
+The function ``compose_hangul_syllable(jamo)`` takes a tuple or list of Unicode scalar values of Jamo and returns its equivalent precomposed Hangul syllable.  The complementary function ``decompose_hangul_syllable(hangul_syllable, fully_decompose=False)`` takes the Unicode scalar value of a hangul syllable and will either do a canonical decomposition (default, fully_decompose=False) or a full canonical decomposition (fully_decompose=True) of a Hangul syllable.  The return value will be a tuple of Unicode scalar values corresponding to the Jamo that the Hangul syllable has been decomposed into.  For example (taken from the `Unicode Standard, ch. 03, section 3.12, Conjoing Jamo Behavior <https://www.unicode.org/versions/latest/ch03.pdf>`_)::
 
-   U+D4DB -> <U+D4CC, U+11B6>  # Canonical Decomposition (default)
-   U+D4DB -> <U+1111, U+1171, U+11B6>  # Full Canonical Decomposition
+   U+D4DB <-> <U+D4CC, U+11B6>  # Canonical Decomposition (default)
+   U+D4CC <-> <U+1111, U+1171>
+   U+D4DB <-> <U+1111, U+1171, U+11B6>  # Full Canonical Decomposition
 
 Example usage:
 ^^^^^^^^^^^^^^
@@ -133,9 +134,21 @@ The following sample code snippet::
 
    import sys
 
-   from unicodeutil import UnicodeData, decompose_hangul_syllable
+   from unicodeutil import UnicodeData, compose_hangul_syllable, \
+                           decompose_hangul_syllable
 
-   ucd = UnicodeData()
+   ucd = None
+
+
+   def pprint_composed(jamo):
+       hangul = compose_hangul_syllable(jamo)
+       hangul_data = ucd[hangul]
+       print("<{0}> -> {1}".format(
+           ", ".join([" ".join([jamo_data.code, jamo_data.name])
+                      for jamo_data in [ucd[j] for j in jamo]]),
+           " ".join([hangul_data.code, hangul_data.name])
+       ))
+
 
    def pprint_decomposed(hangul, decomposition):
        hangul_data = ucd[hangul]
@@ -146,32 +159,44 @@ The following sample code snippet::
                                         for jamo in decomposition if jamo]])
        ))
 
+
    def main():
-       hangul = int(sys.argv[1], 16)
-       print("Canonical Decomposition:")
-       pprint_decomposed(hangul,
-                         decompose_hangul_syllable(hangul, fully_decompose=False))
-       print("Full Canonical Decomposition:")
-       pprint_decomposed(hangul,
-                         decompose_hangul_syllable(hangul, fully_decompose=True))
+       if len(sys.argv) not in {2, 3, 4}:
+           print("Invalid number of arguments!")
+           sys.exit(1)
+       global ucd
+       ucd = UnicodeData()
+       if len(sys.argv) == 2:
+           hangul = int(sys.argv[1], 16)
+           print("Canonical Decomposition:")
+           pprint_decomposed(hangul,
+                             decompose_hangul_syllable(hangul,
+                                                       fully_decompose=False))
+           print("Full Canonical Decomposition:")
+           pprint_decomposed(hangul,
+                             decompose_hangul_syllable(hangul,
+                                                       fully_decompose=True))
+       elif len(sys.argv) in {3, 4}:
+           print("Composition:")
+           pprint_composed(tuple([int(arg, 16) for arg in sys.argv[1:]]))
 
 
    if __name__ == "__main__":
        main()
 
-
 Will produce the following (tested in Python 2 and Python 3)::
 
-   $ python pprint_decomposed.py 0xD4DB
+   $ python pprint_hangul.py 0xD4DB
    Canonical Decomposition:
    U+D4DB HANGUL SYLLABLE PWILH -> <U+D4CC HANGUL SYLLABLE PWI, U+11B6 HANGUL JONGSEONG RIEUL-HIEUH>
    Full Canonical Decomposition:
    U+D4DB HANGUL SYLLABLE PWILH -> <U+1111 HANGUL CHOSEONG PHIEUPH, U+1171 HANGUL JUNGSEONG WI, U+11B6 HANGUL JONGSEONG RIEUL-HIEUH>
-   $ python3 pprint_decomposed.py 0xD4CC
-   Canonical Decomposition:
-   U+D4CC HANGUL SYLLABLE PWI -> <U+1111 HANGUL CHOSEONG PHIEUPH, U+1171 HANGUL JUNGSEONG WI>
-   Full Canonical Decomposition:
-   U+D4CC HANGUL SYLLABLE PWI -> <U+1111 HANGUL CHOSEONG PHIEUPH, U+1171 HANGUL JUNGSEONG WI>
+   $ python3 pprint_hangul.py 0xD4CC 0x11B6
+   Composition:
+   <U+D4CC HANGUL SYLLABLE PWI, U+11B6 HANGUL JONGSEONG RIEUL-HIEUH> -> U+D4DB HANGUL SYLLABLE PWILH
+   $ pypy pprint_hangul.py 0x1111 0x1171 0x11b6
+   Composition:
+   <U+1111 HANGUL CHOSEONG PHIEUPH, U+1171 HANGUL JUNGSEONG WI, U+11B6 HANGUL JONGSEONG RIEUL-HIEUH> -> U+D4DB HANGUL SYLLABLE PWILH
 
 
 License

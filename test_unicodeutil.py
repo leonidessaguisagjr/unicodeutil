@@ -5,7 +5,8 @@ import unittest
 
 import six
 
-from unicodeutil import CaseFoldingMap, UnicodeData, casefold, decompose_hangul_syllable, preservesurrogates
+from unicodeutil import CaseFoldingMap, UnicodeData, casefold, compose_hangul_syllable, decompose_hangul_syllable, \
+    preservesurrogates
 from unicodeutil.unicodeutil import _nr_prefix_strings, _padded_hex, _unichr
 from unicodeutil.hangulutil import _get_hangul_syllable_name
 
@@ -273,6 +274,30 @@ class TestDecomposeHangulSyllable(unittest.TestCase):
         # Example from Unicode® Standard Annex #44, https://unicode.org/reports/tr44/#Character_Decomposition_Mappings
         self.assertEqual((0x110E, 0x1173, 0x11B8), decompose_hangul_syllable(0xCE31, fully_decompose=True))
         self.assertEqual((0x110E, 0x1173, None), decompose_hangul_syllable(0xCE20, fully_decompose=True))
+
+
+class TestComposeHangulSyllable(unittest.TestCase):
+    """Class for testing the compose_hangul_syllable(jamo) function."""
+
+    def test_compose_hangul_syllable_l_v(self):
+        """Test that composing from an (l_part, t_part) tuple is successful."""
+        self.assertEqual(0xD4CC, compose_hangul_syllable((0x1111, 0x1171)))
+
+    def test_compose_hangul_syllable_l_v_t(self):
+        """Test that composing from an (l_part, v_part, t_part) tuple is successful."""
+        self.assertEqual(0xD4DB, compose_hangul_syllable((0x1111, 0x1171, 0x11B6)))
+
+    def test_compose_hangul_syllable_lv_t(self):
+        """Test that composing from an (lv_part, t_part) tuple is successful."""
+        self.assertEqual(0xD4DB, compose_hangul_syllable((0xD4CC, 0x11B6)))
+
+    def test_compose_hangul_syllable_neg(self):
+        """Test that passing in invalid sequences correctly raise a ValueError."""
+        self.assertRaises(ValueError, compose_hangul_syllable, (0x1111, ))  # 1-element tuple
+        self.assertRaises(ValueError, compose_hangul_syllable, (0x1111, 0x1171, 0xD4CC, 0x11B6))  # 4-element tuple
+        self.assertRaises(ValueError, compose_hangul_syllable, (0x1111, 0x11B6))  # (l_part, t_part) tuple
+        self.assertRaises(ValueError, compose_hangul_syllable, (0x0061, 0x0300))  # non-Jamo characters
+        self.assertRaises(ValueError, compose_hangul_syllable, (0x0073, 0x0323, 0x0307))  # non-Jamo characters
 
 
 if __name__ == "__main__":
