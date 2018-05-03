@@ -99,7 +99,7 @@ Using Python 2::
 Using the latest Unicode® Character Database (UCD)
 --------------------------------------------------
 
-As of Python 2.7.14, the `unicodedata <https://docs.python.org/2/library/unicodedata.html>`_ module is still using data from version 5.2.0 of the UCD.  The UCD is currently up to version 10.0.0.  The ``UnicodeCharacter`` namedtuple encapsulates the various properties associated with each Unicode® character, as explained in `Unicode Standard Annex #44, UnicodeData.txt <https://www.unicode.org/reports/tr44/#UnicodeData.txt>`_.  The ``UnicodeData`` class represents the contents of the UCD as parsed from the `latest UnicodeData.txt <ftp://ftp.unicode.org/Public/UCD/latest/ucd/UnicodeData.txt>`_ found on the Unicode Consortium FTP site.  Once an instance of the ``UnicodeData`` class has been created, it is possible to do ``dict`` style lookups using the Unicode characters, or lookups by name using the ``lookup_by_name(name)`` method.  The name lookup uses the `UAX44-LM2 <https://www.unicode.org/reports/tr44/#UAX44-LM2>`_ loose matching rule when doing lookups.  Iterating through all of the data is also possible via ``items()``, ``keys()`` and ``values()`` methods.
+As of Python 2.7.15, the `unicodedata <https://docs.python.org/2/library/unicodedata.html>`_ module is still using data from version 5.2.0 of the UCD.  The UCD is currently up to version 10.0.0.  The ``UnicodeCharacter`` namedtuple encapsulates the various properties associated with each Unicode® character, as explained in `Unicode Standard Annex #44, UnicodeData.txt <https://www.unicode.org/reports/tr44/#UnicodeData.txt>`_.  The ``UnicodeData`` class represents the contents of the UCD as parsed from the `latest UnicodeData.txt <ftp://ftp.unicode.org/Public/UCD/latest/ucd/UnicodeData.txt>`_ found on the Unicode Consortium FTP site.  Once an instance of the ``UnicodeData`` class has been created, it is possible to do ``dict`` style lookups using the Unicode scalar value, lookup by Unicode character by using the ``lookup_by_char(c)`` method, or lookups by name using the ``lookup_by_name(name)`` method.  The name lookup uses the `UAX44-LM2 <https://www.unicode.org/reports/tr44/#UAX44-LM2>`_ loose matching rule when doing lookups.  Iterating through all of the data is also possible via ``items()``, ``keys()`` and ``values()`` methods.
 
 Example usage
 ^^^^^^^^^^^^^
@@ -108,10 +108,12 @@ Using Python 2::
 
    >>> from unicodeutil import UnicodeData
    >>> ucd = UnicodeData()
-   >>> ucd[u"ß"]
+   >>> ucd[0x00df]
    UnicodeCharacter(code=u'U+00DF', name='LATIN SMALL LETTER SHARP S', category='Ll', combining=0, bidi='L', decomposition='', decimal='', digit='', numeric='', mirrored='N', unicode_1_name='', iso_comment='', uppercase='', lowercase='', titlecase='')
-   >>> ucd[u"İ"].name
+   >>> ucd[0x0130].name
    'LATIN CAPITAL LETTER I WITH DOT ABOVE'
+   >>> ucd.lookup_by_char(u"ᜊ")
+   UnicodeCharacter(code=u'U+170A', name=u'TAGALOG LETTER BA', category=u'Lo', combining=0, bidi=u'L', decomposition=u'', decimal=u'', digit=u'', numeric=u'', mirrored=u'N', unicode_1_name=u'', iso_comment=u'', uppercase=u'', lowercase=u'', titlecase=u'')
    >>> ucd.lookup_by_name("latin small letter sharp_s")
    UnicodeCharacter(code=u'U+00DF', name='LATIN SMALL LETTER SHARP S', category='Ll', combining=0, bidi='L', decomposition='', decimal='', digit='', numeric='', mirrored='N', unicode_1_name='', iso_comment='', uppercase='', lowercase='', titlecase='')
 
@@ -127,22 +129,20 @@ The function ``decompose_hangul_syllable(hangul_syllable, fully_decompose=False)
 Example usage:
 ^^^^^^^^^^^^^^
 
-Given the following code snippet::
+The following sample code snippet::
 
    import sys
-
-   import six
 
    from unicodeutil import UnicodeData, decompose_hangul_syllable
 
    ucd = UnicodeData()
 
    def pprint_decomposed(hangul, decomposition):
-       hangul_data = ucd[six.unichr(hangul)]
+       hangul_data = ucd[hangul]
        print("{0} -> <{1}>".format(
            " ".join([hangul_data.code, hangul_data.name]),
            ", ".join([" ".join([jamo_data.code, jamo_data.name])
-                      for jamo_data in [ucd[six.unichr(jamo)]
+                      for jamo_data in [ucd[jamo]
                                         for jamo in decomposition if jamo]])
        ))
 
@@ -158,6 +158,7 @@ Given the following code snippet::
 
    if __name__ == "__main__":
        main()
+
 
 Will produce the following (tested in Python 2 and Python 3)::
 

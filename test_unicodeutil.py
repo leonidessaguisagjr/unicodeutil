@@ -72,29 +72,44 @@ class TestUnicodeData(unittest.TestCase):
 
     def test_lookup(self):
         """Test the default lookup behavior."""
-        self.assertEqual(u"LATIN CAPITAL LETTER I WITH DOT ABOVE", self.ucd[u"İ"].name)
-        self.assertEqual(0, self.ucd[u"0"].decimal)
-        self.assertEqual(1, self.ucd[u"1"].digit)
-        self.assertEqual(2, self.ucd[u"2"].numeric)
-        self.assertEqual(u"BACKSLASH", self.ucd[u"\\"].unicode_1_name)
-        self.assertEqual(u"A", self.ucd[u"a"].uppercase)
-        self.assertEqual(u"z", self.ucd[u"Z"].lowercase)
-        self.assertEqual(u"ǅ", self.ucd[u"Ǆ"].titlecase)
+        self.assertEqual(u"LATIN CAPITAL LETTER I WITH DOT ABOVE", self.ucd[0x0130].name)
+        self.assertEqual(0, self.ucd[0x0030].decimal)  # DIGIT ZERO
+        self.assertEqual(1, self.ucd[0x0031].digit)  # DIGIT ONE
+        self.assertEqual(2, self.ucd[0x0032].numeric)  # DIGIT TWO
+        self.assertEqual(u"BACKSLASH", self.ucd[0x005c].unicode_1_name)  # REVERSE SOLIDUS
+        self.assertEqual(u"A", self.ucd[0x0061].uppercase)  # LATIN SMALL LETTER A
+        self.assertEqual(u"z", self.ucd[0x005a].lowercase)  # LATIN CAPITAL LETTER Z
+        self.assertEqual(u"ǅ", self.ucd[0x01c4].titlecase)  # LATIN CAPITAL LETTER DZ WITH CARON
+
+    def test_lookup_by_char(self):
+        """Test look up by Unicode character."""
+        self.assertEqual(u"REVERSE SOLIDUS", self.ucd.lookup_by_char(u"\\").name)
+        self.assertEqual(u"YEN SIGN", self.ucd.lookup_by_char(u"¥").name)
+        self.assertEqual(u"LATIN CAPITAL LETTER SHARP S", self.ucd.lookup_by_char(u"ẞ").name)
+        self.assertEqual(u"TAGALOG LETTER BA", self.ucd.lookup_by_char(u"ᜊ").name)
+        self.assertEqual(u"HANGUL SYLLABLE GA", self.ucd.lookup_by_char(u"가").name)
+        self.assertEqual(u"LINEAR B SYLLABLE B008 A", self.ucd.lookup_by_char(u"𐀀").name)
+        self.assertEqual(u"CJK UNIFIED IDEOGRAPH-20000", self.ucd.lookup_by_char(u"𠀀").name)
 
     def test_lookup_by_name(self):
         """Test looking up by name."""
-        expected = self.ucd[u"ß"]
+        expected = self.ucd[0x00df]
         self.assertEqual(expected, self.ucd.lookup_by_name("LATIN SMALL LETTER SHARP S"))
         self.assertEqual(expected, self.ucd.lookup_by_name("LATIN_SMALL_LETTER_SHARP_S"))
         self.assertEqual(expected, self.ucd.lookup_by_name("latin_small_letter_sharp_s"))
         self.assertEqual(expected, self.ucd.lookup_by_name("latinsmalllettersharps"))
-        expected = self.ucd[six.unichr(0x200c)]
+        expected = self.ucd[0x200c]
         self.assertEqual(expected, self.ucd.lookup_by_name("ZERO WIDTH NON-JOINER"))
         self.assertEqual(expected, self.ucd.lookup_by_name("ZERO_WIDTH_NON-JOINER"))
         self.assertEqual(expected, self.ucd.lookup_by_name("ZERO_WIDTH_NON_JOINER"))
         self.assertEqual(expected, self.ucd.lookup_by_name("Zero Width Non-Joiner"))
         self.assertEqual(expected, self.ucd.lookup_by_name("zero width non-joiner"))
         self.assertEqual(expected, self.ucd.lookup_by_name("zero width non joiner"))
+        expected = self.ucd[0x1705]
+        self.assertEqual(expected, self.ucd.lookup_by_name("TAGALOG LETTER NGA"))
+        self.assertEqual(expected, self.ucd.lookup_by_name("TAGALOG_LETTER_NGA"))
+        self.assertEqual(expected, self.ucd.lookup_by_name("tagalog-letter-nga"))
+        self.assertEqual(expected, self.ucd.lookup_by_name("tagalog_letter nga"))
 
     def test_name_lookup_neg(self):
         """Test for verifying that looking for a non-existent name causes a KeyError to be raised."""
@@ -106,12 +121,12 @@ class TestUnicodeData(unittest.TestCase):
 
         See https://www.unicode.org/faq/private_use.html#nonchar1 for more info on Unicode noncharacters.
         """
-        self.assertRaises(KeyError, self.ucd.get, six.unichr(0xFDD0))
-        self.assertRaises(KeyError, self.ucd.get, six.unichr(0xFDEF))
+        self.assertRaises(KeyError, self.ucd.get, 0xFDD0)
+        self.assertRaises(KeyError, self.ucd.get, 0xFDEF)
 
     def test_get_getitem(self):
         """Test that calls to get() and __getitem__() return the same data."""
-        self.assertEqual(self.ucd.get(u"ẞ"), self.ucd[u"ẞ"])
+        self.assertEqual(self.ucd.get(0x1e9e), self.ucd[0x1e9e])  # LATIN CAPITAL LETTER SHARP S
 
     def test_lookup_compressed_char(self):
         """
@@ -119,7 +134,7 @@ class TestUnicodeData(unittest.TestCase):
         Standard, ch. 4, section 4.8 for more information on how the compression works.
         """
         # Test naming rule NR1 with an example from Unicode Standard, ch. 03, section 3.12
-        self.assertEqual("HANGUL SYLLABLE PWILH", self.ucd[six.unichr(0xD4DB)].name)
+        self.assertEqual("HANGUL SYLLABLE PWILH", self.ucd[0xD4DB].name)
         # Go through each range and test characters from the start, middle and end of the ranges
         for lookup_range, prefix_string in _nr_prefix_strings.items():
             start_range = lookup_range[0]
@@ -130,11 +145,11 @@ class TestUnicodeData(unittest.TestCase):
             three_quarter_range = start_range + (range_size * 3 // 4)
             test_ranges = [start_range, quarter_range, mid_range, three_quarter_range, end_range]
             for item in test_ranges:
-                unichar = self.ucd[_unichr(item)]
+                char_info = self.ucd[item]
                 if prefix_string.startswith("HANGUL SYLLABLE"):  # Check for naming rule NR1
-                    self.assertEqual(prefix_string + _get_hangul_syllable_name(item), unichar.name)
+                    self.assertEqual(prefix_string + _get_hangul_syllable_name(item), char_info.name)
                 else:  # Check for naming rule NR2
-                    self.assertEqual(prefix_string + _padded_hex(item), unichar.name)
+                    self.assertEqual(prefix_string + _padded_hex(item), char_info.name)
 
 
 class TestCasefold(unittest.TestCase):

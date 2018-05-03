@@ -260,24 +260,24 @@ class UnicodeData:
                         data[i] = _hexstr_to_unichr(data[i])
                 lookup_name = _uax44lm2transform(data[1])
                 uc_data = UnicodeCharacter(u"U+" + data[0], *data[1:])
-                self._unicode_character_database[_hexstr_to_unichr(data[0])] = uc_data
+                self._unicode_character_database[int(data[0], 16)] = uc_data
                 self._name_database[lookup_name] = uc_data
 
-    def get(self, c):
+    def get(self, value):
         """
-        Function for retrieving the UnicodeCharacter associated with the character c.
+        Function for retrieving the UnicodeCharacter associated with the specified Unicode scalar value.
 
-        :param c: Character to look up.
-        :return: UnicodeCharacter instance with data associated with the character.
+        :param value: Unicode scalar value to look up.
+        :return: UnicodeCharacter instance with data associated with the specified value.
         """
-        return self.__getitem__(c)
+        return self.__getitem__(value)
 
     def __getitem__(self, item):
         """
-        Function for retrieving the UnicodeCharacter associated with the character c.
+        Function for retrieving the UnicodeCharacter associated with the specified Unicode scalar value.
 
-        :param item: Character to look up.
-        :return: UnicodeCharacter instance with data associated with the character.
+        :param item: Unicode scalar value to look up.
+        :return: UnicodeCharacter instance with data associated with the specified value.
         """
         try:
             return self._unicode_character_database.__getitem__(item)
@@ -286,17 +286,15 @@ class UnicodeData:
             # lookup fails, let's see if we are in the "compressed" ranges of UnicodeData.txt and if so we will try
             # inferring the correct UnicodeCharacter by using the Name Derivation Rules.
             # See the Unicode Standard, ch. 4, section 4.8, Unicode Name Property
-            lookup_index = _to_unicode_scalar_value(item)
             for lookup_range, prefix_string in _nr_prefix_strings.items():
-                if lookup_index in lookup_range:
-                    hex_code = _padded_hex(lookup_index)
+                if item in lookup_range:
+                    hex_code = _padded_hex(item)
                     new_name = prefix_string
                     if prefix_string.startswith("HANGUL SYLLABLE"):  # For Hangul, we should use naming rule NR1
-                        new_name += _get_hangul_syllable_name(lookup_index)
+                        new_name += _get_hangul_syllable_name(item)
                     else:  # Everything else uses naming rule NR2
                         new_name += hex_code
-                    exemplar_lookup = _unichr(lookup_range[0])
-                    exemplar = self._unicode_character_database.__getitem__(exemplar_lookup)
+                    exemplar = self._unicode_character_database.__getitem__(lookup_range[0])
                     # The properties in the ranges are uniform, so all we need to change is the code and the name.
                     return exemplar._replace(code=u"U+"+hex_code, name=new_name)
             raise
@@ -328,6 +326,15 @@ class UnicodeData:
         :return: list of the data's values.
         """
         return self._unicode_character_database.values()
+
+    def lookup_by_char(self, c):
+        """
+        Function for retrieving the UnicodeCharacter associated with the specified Unicode character.
+
+        :param c: Unicode character to look up.
+        :return: UnicodeCharacter instance with data associated with the specified Unicode character.
+        """
+        return self._unicode_character_database[_to_unicode_scalar_value(c)]
 
     def lookup_by_name(self, name):
         """
