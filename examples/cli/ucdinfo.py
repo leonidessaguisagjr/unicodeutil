@@ -26,7 +26,11 @@ def main():
         try:
             scalar_lookup = int(lookup, 16)
             char_info = ucd[scalar_lookup]
-            print(u"char: {0}".format(six.unichr(scalar_lookup)))
+            try:
+                char = six.unichr(scalar_lookup)
+            except ValueError:
+                char = (u"\\U%08x" % scalar_lookup).decode("unicode-escape")
+            print(u"char: {0}".format(char))
             # Ok to access, _asdict() is a documented method.
             for k, v in char_info._asdict().items():
                 print(u"{0}: {1}".format(k, v))
