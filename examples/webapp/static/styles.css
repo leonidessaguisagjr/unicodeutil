@@ -1,0 +1,120 @@
+body {
+  background-color: #e3f2fc;
+  font-family: sans-serif;
+}
+
+hr {
+  background-color: lightblue;
+  color: lightblue;
+  height: 2px;
+  margin-top: 35px;
+  margin-bottom: 35px;
+  width: 85%;
+}
+
+input[type=text] {
+  border: 2px solid darkgrey;
+  border-radius: 10px;
+  font-family: monospace;
+  font-size: 25px;
+  height: 35px;
+  text-align: center;
+  width: 75%;
+}
+
+input[type=submit] {
+  background-color: darkgrey;
+  border-radius: 10px;
+  font-family: sans-serif;
+  font-size: 20px;
+  font-weight: bold;
+  height: 35px;
+  padding: 5px;
+  text-align: center;
+  width: 200px;
+}
+
+.search_label {
+  padding: 50px;
+}
+
+.dotted_border {
+  border: 1px dotted;
+}
+
+.sample_text {
+  font-size: 5em;
+  padding: 5px;
+  text-align: center;
+}
+
+.mono {
+  font-family: monospace;
+}
+
+.serif {
+  font-family: serif;
+}
+
+.sans-serif {
+  font-family: sans-serif;
+}
+
+.footer_text {
+  font-size: 0.9em;
+  font-weight: lighter;
+  font-style: italic;
+}
+
+.centered_text {
+  text-align: center;
+}
+
+.lookup_box {
+  background-color: #b6dbf6;
+  margin: 0 auto;
+  padding: 25px;
+  width: 60%;
+}
+
+.lookup_box_header {
+  padding: 20px;
+}
+
+.char_data_key {
+  min-width: 200px;
+  text-align: right;
+}
+
+.char_data_value {
+  min-width: 200px;
+}
+
+table {
+  background-color: #b6dbf6;
+  font-family: monospace;
+  font-size: 1.5em;
+  margin: 10px;
+  padding: 10px;
+}
+
+table.centered {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+tr:nth-child(odd) {
+  background-color: #5bafeb;
+}
+
+td {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+th {
+  background-color: #13629a;
+  text-align: center;
+  padding-left: 10px;
+  padding-right: 10px;
+}

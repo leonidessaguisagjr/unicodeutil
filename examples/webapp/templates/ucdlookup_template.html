@@ -1,0 +1,35 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Unicode&reg; Character Database lookup</title>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}"/>
+</head>
+<body>
+  <h1 class="centered_text">Unicode&reg; Character Database lookup</h1>
+  <hr />
+  <div class="lookup_box dotted_border">
+    <h2 class="centered_text lookup_box_header">Lookup</h2>
+    <hr />
+    <form class="centered_text" method="post">
+      <div>
+        <label class="search_label" for="search_text">Search for:</label>
+        <br />
+        <input type="text" name="search_text" id="search_text"/>
+      </div>
+      <hr />
+      <div>
+        <input type="submit" name="lookup_by_value" value="Lookup by value*"/>
+        <input type="submit" name="lookup_by_name" value="Lookup by name**"/>
+      </div>
+      <br />
+      <p class="footer_text">
+        (*) - Search by hex code for a Unicode&reg; scalar value e.g. <span class="mono">0130</span> or <span class="mono">0x0130</span>.
+      </p>
+      <p class="footer_text">
+        (**) - Search by Unicode&reg; character name e.g. <span class="mono">LATIN CAPITAL LETTER I WITH DOT ABOVE</span>.  The name lookup uses <a href="https://www.unicode.org/reports/tr44/#UAX44-LM2">loose matching rule UAX44-LM2</a> to facilitate searching.
+      </p>
+    </form>
+  </div>
+</body>
+</html>
