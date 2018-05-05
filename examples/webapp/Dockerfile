@@ -1,4 +1,4 @@
-FROM python:3.6.5
+FROM pypy:3
 
 # Set the working directory
 WORKDIR /ucdwebapp
@@ -13,10 +13,10 @@ COPY static/* /ucdwebapp/static/
 COPY templates/* /ucdwebapp/templates/
 
 # Run pip to install the required packages
-RUN pip install --trusted-host=pypi.python.org -r requirements.txt
+RUN pip install --no-cache-dir --trusted-host=pypi.python.org -r requirements.txt
 
 # Unblock the default port for Flask
 EXPOSE 5000
 
 # Start the Flask app
-CMD ["python3", "app.py"]
+ENTRYPOINT ["pypy3", "app.py"]
