@@ -77,7 +77,7 @@ def _padded_hex(i, pad_width=4, uppercase=True):
     Helper function for taking an integer and returning a hex string.  The string will be padded on the left with zeroes
     until the string is of the specified width.  For example:
 
-    _padded_hex(31, padding=4, uppercase=True) -> "001F"
+    _padded_hex(31, pad_width=4, uppercase=True) -> "001F"
 
     :param i: integer to convert to a hex string
     :param pad_width: (int specifying the minimum width of the output string.  String will be padded on the left with '0'
