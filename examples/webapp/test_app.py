@@ -42,6 +42,15 @@ class TestCaseFold(unittest.TestCase):
         resp_str = self.leading_trailing_quotes.sub('', resp.content.strip().decode('unicode-escape'))
         self.assertEqual(casefold(input_string, fullcasefold=True), resp_str)
 
+    def test_turkic_casefold(self):
+        input_string = u"DİYARBAKIR"
+        resp = requests.post(base_url + "casefold", json={"input_string": input_string})
+        resp_str = self.leading_trailing_quotes.sub('', resp.content.strip().decode('unicode-escape'))
+        self.assertEqual(casefold(input_string), resp_str)
+        resp = requests.post(base_url + "casefold", json={"input_string": input_string, "useturkicmapping": True})
+        resp_str = self.leading_trailing_quotes.sub('', resp.content.strip().decode('unicode-escape'))
+        self.assertEqual(casefold(input_string, useturkicmapping=True), resp_str)
+
 
 if __name__ == "__main__":
     unittest.main()
