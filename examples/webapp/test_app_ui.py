@@ -2,6 +2,7 @@
 
 import unittest
 
+import requests
 from selenium import webdriver
 
 from unicodeutil import UnicodeData
@@ -10,6 +11,20 @@ from unicodeutil import UnicodeData
 base_url = "http://localhost:5000/"
 ucd_url = base_url + "unicodeutil/ucd/"
 ucd = UnicodeData()
+
+
+def get_http_response(url):
+    """
+    Selenium does not provide a way to get the raw HTTP response (e.g. the status
+    code of 200: 0K, 404: Page not found is part of the response) so we need to
+    use requests to get a HTTP response which we can use later to check for
+    things like status codes, redirect history, etc.
+
+    :param url: URL to load
+    :returns: response object.
+    """
+    headers = {"Accept": "text/html"}
+    return requests.get(url, headers=headers)
 
 
 class TestUnicodeDataWebApp(unittest.TestCase):
@@ -23,6 +38,9 @@ class TestUnicodeDataWebApp(unittest.TestCase):
     def test_redirect(self):
         self.browser.get(base_url)
         self.assertEqual(ucd_url, self.browser.current_url)
+        r = get_http_response(base_url)
+        self.assertEqual(200, r.status_code)
+        self.assertEqual(302, r.history[0].status_code)
 
     def test_lookup_by_value(self):
         search_char = "D4DB"
@@ -55,7 +73,7 @@ class TestUnicodeDataWebApp(unittest.TestCase):
             actual = self.browser.find_element_by_id("char_data_value_{0}".format(attr)).text
             self.assertEqual(expected, actual)
 
-    def test_lookup_404(self):
+    def test_lookup_non_existent_char(self):
         search_name = "non-existent name"
         expected_error_text = "ERROR - No character info found!"
         self.browser.get(ucd_url)
@@ -66,6 +84,15 @@ class TestUnicodeDataWebApp(unittest.TestCase):
         self.assertEqual(expected_error_text, self.browser.title)
         page_title = self.browser.find_element_by_id("page_title")
         self.assertTrue(expected_error_text in page_title.text)
+
+    def test_404(self):
+        error_url = ucd_url + "non_existent_page.html"
+        expected_error_text = "404 Error"
+        self.browser.get(error_url)
+        self.assertTrue(expected_error_text in self.browser.title)
+        page_title = self.browser.find_element_by_id("page_title")
+        self.assertTrue(expected_error_text in page_title.text)
+        self.assertEqual(404, get_http_response(error_url).status_code)
 
 
 if __name__ == "__main__":

@@ -20,7 +20,10 @@ ucd = UnicodeData()
 
 @app.errorhandler(404)
 def handle_404(error):
-    return make_response(jsonify({"error": "URL not found.  Please check your spelling and try again."}), 404)
+    if request.accept_mimetypes.best_match(['application/json', 'text/html']) == 'application/json':
+        return make_response(jsonify({"error": "404 Error: URL not found.  Please check your spelling and try again."}), 404)
+    else:
+        return render_template("404.html"), 404
 
 
 @app.route(api_base_url + "ucd/<lookup>", methods=['GET'])

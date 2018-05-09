@@ -9,8 +9,16 @@ from unicodeutil import UnicodeData, casefold
 
 
 base_url = "http://localhost:5000/unicodeutil/api/v1.0/"
-headers = {"Content-Type": "application/json"}
+headers = {"Accept": "application/json", "Content-Type": "application/json"}
 ucd = UnicodeData()
+
+
+class Test404(unittest.TestCase):
+
+    def test_404(self):
+        resp = requests.get(base_url + "non_existent_endpoint", headers=headers)
+        self.assertEqual(404, resp.status_code)
+        self.assertTrue(resp.json()['error'].startswith("404 Error"))
 
 
 class TestGetUnicodeData(unittest.TestCase):
