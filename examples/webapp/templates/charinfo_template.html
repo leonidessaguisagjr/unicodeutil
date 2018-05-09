@@ -6,9 +6,9 @@
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}"/>
 </head>
 <body>
-  <h1 class="centered_text">{{ char_info['name'] }} ({{ char_info['code'] }})</h1>
+  <h1 class="centered_text" id="page_title">{{ char_info['name'] }} ({{ char_info['code'] }})</h1>
   <hr />
-  <table class="centered">
+  <table class="centered" id="example_glyphs_table">
     <caption>Example glyphs (rendered by browser)</caption>
     <tr>
       <th>Monospace</th>
@@ -16,18 +16,18 @@
       <th>Sans Serif</th>
     </tr>
     <tr>
-      <td class="sample_text mono dotted_border">{{ char }}</td>
-      <td class="sample_text serif dotted_border">{{ char }}</td>
-      <td class="sample_text sans-serif dotted_border">{{ char }}</td>
+      <td class="sample_text mono dotted_border" id="sample_text_mono">{{ char }}</td>
+      <td class="sample_text serif dotted_border" id="sample_text_serif">{{ char }}</td>
+      <td class="sample_text sans-serif dotted_border" id="sample_text_sans">{{ char }}</td>
     </tr>
   </table>
   <hr />
-  <table class="centered">
+  <table class="centered" id="character_data_table">
     <caption>Character data*</caption>
     {% for k, v in char_info.items() %}
     <tr>
-      <th class="char_data_key">{{ k }}</th>
-      <td class="char_data_value">{{ v }}</td>
+      <th class="char_data_key" id="char_data_key_{{ k }}">{{ k }}</th>
+      <td class="char_data_value" id="char_data_value_{{ k }}">{{ v }}</td>
     </tr>
     {% endfor %}
   </table>

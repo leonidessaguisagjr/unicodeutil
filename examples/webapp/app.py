@@ -51,17 +51,17 @@ def home():
 def ucd_html():
     if request.method == "POST":
         search_type = "value" if "lookup_by_value" in request.form else "name"
-        search_text = request.form.get('search_text')
-        if not search_text:
-            return render_template("ucdlookup_error_template.html", search_text=search_text, search_type=search_type)
+        search_text_input = request.form.get('search_text_input')
+        if not search_text_input:
+            return render_template("ucdlookup_error_template.html", search_text_input=search_text_input, search_type=search_type)
         try:
             if "lookup_by_value" in request.form:
-                lookup = re.sub(r"^[Uu]\+", "", search_text)  # Strip leading "U+" or "u+" if it is present.
+                lookup = re.sub(r"^[Uu]\+", "", search_text_input)  # Strip leading "U+" or "u+" if it is present.
                 ucd[int(lookup, 16)]  # Try doing a lookup so we can trap the KeyError and render the error page.
             else:
-                lookup = ucd.lookup_by_name(search_text).code[2:]  # Strip the leading "U+"
+                lookup = ucd.lookup_by_name(search_text_input).code[2:]  # Strip the leading "U+"
         except (KeyError, ValueError):
-            return render_template("ucdlookup_error_template.html", search_text=search_text, search_type=search_type)
+            return render_template("ucdlookup_error_template.html", search_text_input=search_text_input, search_type=search_type)
         return redirect("/unicodeutil/ucd/" + lookup)
     else:
         return render_template("ucdlookup_template.html")
