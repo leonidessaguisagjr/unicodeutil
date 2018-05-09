@@ -13,6 +13,8 @@ app.config["JSON_SORT_KEYS"] = False
 appname = "unicodeutil"
 api_version = "v1.0"
 api_base_url = "/{0}/api/{1}/".format(appname, api_version)
+ui_base_url = "/{0}/".format(appname)
+ucd_base_url = "{0}ucd/".format(ui_base_url)
 ucd = UnicodeData()
 
 
@@ -44,10 +46,10 @@ def do_casefold():
 
 @app.route("/")
 def home():
-    return redirect("/unicodeutil/ucd/")
+    return redirect(ucd_base_url)
 
 
-@app.route("/unicodeutil/ucd/", methods=['GET', 'POST'])
+@app.route(ucd_base_url, methods=['GET', 'POST'])
 def ucd_html():
     if request.method == "POST":
         search_type = "value" if "lookup_by_value" in request.form else "name"
@@ -67,7 +69,7 @@ def ucd_html():
         return render_template("ucdlookup_template.html")
 
 
-@app.route("/unicodeutil/ucd/<lookup>", methods=['GET'])
+@app.route(ucd_base_url + "<lookup>", methods=['GET'])
 def charinfo_html(lookup):
     try:
         lookup_value = int(lookup, 16)
