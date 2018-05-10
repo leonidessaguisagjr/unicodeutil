@@ -125,6 +125,14 @@ class TestUnicodeData(unittest.TestCase):
         self.assertRaises(KeyError, self.ucd.get, 0xFDD0)
         self.assertRaises(KeyError, self.ucd.get, 0xFDEF)
 
+    def test_lookup_by_partial_name(self):
+        """Test lookup by partial name."""
+        partial_name = "SHARP S"
+        for data in self.ucd.lookup_by_partial_name(partial_name):
+            self.assertTrue(partial_name in data.name)
+        char_info_list = list(self.ucd.lookup_by_partial_name("NON EXISTENT CHARACTER"))
+        self.assertFalse(char_info_list)
+
     def test_get_getitem(self):
         """Test that calls to get() and __getitem__() return the same data."""
         self.assertEqual(self.ucd.get(0x1e9e), self.ucd[0x1e9e])  # LATIN CAPITAL LETTER SHARP S
