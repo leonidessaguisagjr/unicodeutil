@@ -378,12 +378,9 @@ class UnicodeData:
         :param partial_name: Partial name of the character to look up.
         :return: Generator that yields instances of UnicodeCharacter.
         """
-        try:
-            yield self._name_database[_uax44lm2transform(partial_name)]
-        except KeyError:
-            for k, v in self._name_database.items():
-                if _uax44lm2transform(partial_name) in k:
-                    yield v
+        for k, v in self._name_database.items():
+            if _uax44lm2transform(partial_name) in k:
+                yield v
 
 
 class CaseFoldingMap:
