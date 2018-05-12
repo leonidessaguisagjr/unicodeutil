@@ -34,6 +34,18 @@ input[type=submit] {
   width: 200px;
 }
 
+.left_submit {
+  float: left;
+  overflow: hidden;
+  text-align: right;
+  width: 50%;
+}
+
+.right_submit {
+  overflow: hidden;
+  text-align: left;
+}
+
 .search_label {
   padding: 50px;
 }

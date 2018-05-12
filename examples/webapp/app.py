@@ -64,7 +64,11 @@ def ucd_html():
                 lookup = re.sub(r"^[Uu]\+", "", search_text_input)  # Strip leading "U+" or "u+" if it is present.
                 ucd[int(lookup, 16)]  # Try doing a lookup so we can trap the KeyError and render the error page.
             else:
-                lookup = ucd.lookup_by_name(search_text_input).code[2:]  # Strip the leading "U+"
+                if not "use_partial_name" in request.form:
+                    lookup = ucd.lookup_by_name(search_text_input).code[2:]  # Strip the leading "U+"
+                else:
+                    matches = list(ucd.lookup_by_partial_name(search_text_input))
+                    return render_template("ucd_partial_name_lookup_template.html", ucd_base_url=ucd_base_url, search_text_input=search_text_input, matches=matches)
         except (KeyError, ValueError):
             return render_template("ucdlookup_error_template.html", search_text_input=search_text_input, search_type=search_type)
         return redirect("/unicodeutil/ucd/" + lookup)

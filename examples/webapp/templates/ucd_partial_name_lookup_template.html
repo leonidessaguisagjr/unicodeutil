@@ -1,0 +1,31 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Unicode&reg; Character Database lookup - partial name search</title>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}"/>
+</head>
+<body>
+  <h1 class="centered_text">Unicode&reg; Character Database lookup - partial name search</h1>
+  <h2 class="centered_text">Search input: <span class="mono">{{ search_text_input }}</span></h2>
+  <table class="centered">
+    <caption>
+      Matches
+    </caption>
+    <tr>
+      <th>#</th>
+      <th>Code point</th>
+      <th><span title="*glyphs are rendered by the browser and are dependent on the available fonts.">Glyph*</span></th>
+      <th>Name</th>
+    </tr>
+    {% for item in matches %}
+    <tr>
+      <td>{{ loop.index }}</td>
+      <td><a href="{{ ucd_base_url + item.code[2:] }}">{{ item.code }}</a></td>
+      <td>&#x{{ item.code[2:] }};</td>
+      <td>{{ item.name }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</body>
+</html>

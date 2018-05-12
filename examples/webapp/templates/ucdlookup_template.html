@@ -19,8 +19,14 @@
       </div>
       <hr />
       <div>
-        <input type="submit" name="lookup_by_value" id="lookup_by_value" value="Lookup by value*"/>
-        <input type="submit" name="lookup_by_name" id="lookup_by_name" value="Lookup by name**"/>
+        <div class="left_submit">
+          <input type="submit" name="lookup_by_value" id="lookup_by_value" value="Lookup by value*"/>
+        </div>
+        <div class="right_submit">
+          <input type="submit" name="lookup_by_name" id="lookup_by_name" value="Lookup by name**"/>
+          <br />
+          <input type="checkbox" name="use_partial_name" id="use_partial_name" checked/><label>Use partial names***</label>
+        </div>
       </div>
       <br />
       <p class="footer_text">
@@ -28,6 +34,9 @@
       </p>
       <p class="footer_text">
         (**) - Search by Unicode&reg; character name e.g. <span class="mono">LATIN CAPITAL LETTER I WITH DOT ABOVE</span>.  The name lookup uses <a href="https://www.unicode.org/reports/tr44/#UAX44-LM2">loose matching rule UAX44-LM2</a> to facilitate searching.
+      </p>
+      <p class="footer_text">
+        (***) Treat the input name as a partial substring to search for.
       </p>
     </form>
   </div>
