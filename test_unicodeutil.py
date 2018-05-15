@@ -5,7 +5,7 @@ import unittest
 
 import six
 
-from unicodeutil import CaseFoldingMap, UnicodeData, casefold, compose_hangul_syllable, decompose_hangul_syllable, \
+from unicodeutil import CaseFoldingMap, UnicodeBlocks, UnicodeData, casefold, compose_hangul_syllable, decompose_hangul_syllable, \
     preservesurrogates
 from unicodeutil.unicodeutil import _nr_prefix_strings, _padded_hex, _unichr
 from unicodeutil.hangulutil import _get_hangul_syllable_name
@@ -159,6 +159,30 @@ class TestUnicodeData(unittest.TestCase):
                     self.assertEqual(prefix_string + _get_hangul_syllable_name(item), char_info.name)
                 else:  # Check for naming rule NR2
                     self.assertEqual(prefix_string + _padded_hex(item), char_info.name)
+
+
+class TestUnicodeBlocks(unittest.TestCase):
+    """Class for testing the UnicodeBlocks() class."""
+
+    def setUp(self):
+        """Shared setup for all tests."""
+        self.blocks = UnicodeBlocks()
+
+    def test_getitem(self):
+        """Test that dict style lookup succeeds."""
+        self.assertEqual(u"Basic Latin", self.blocks[0x007F])
+
+    def test_get(self):
+        """Test that calling get() succeeds."""
+        self.assertEqual(u"Latin-1 Supplement", self.blocks[0x00FF])
+
+    def test_lookup_by_char(self):
+        """Test that calling lookup_by_char() succeeds."""
+        self.assertEqual(u"Latin Extended Additional", self.blocks.lookup_by_char(u"ẞ"))
+
+    def test_noblock(self):
+        """Test that attempting to lookup an undefined character generates a 'No_Block'."""
+        self.assertEqual(u"No_Block", self.blocks[0x30000])
 
 
 class TestCasefold(unittest.TestCase):

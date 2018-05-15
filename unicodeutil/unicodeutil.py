@@ -383,6 +383,62 @@ class UnicodeData:
                 yield v
 
 
+class UnicodeBlocks:
+    """Class for encapsulating the data in Blocks.txt"""
+
+    def __init__(self):
+        """Initialize the class by loading the Unicode block info."""
+        self._unicode_blocks = {}
+        self._load_unicode_block_info()
+
+    def _load_unicode_block_info(self):
+        """
+        Function for parsing the Unicode block info from the Unicode Character
+        Database (UCD) and generating a lookup table.  For more info on the UCD,
+        see the following website: https://www.unicode.org/ucd/
+        """
+        filename = "Blocks.txt"
+        current_dir = os.path.abspath(os.path.dirname(__file__))
+        with codecs.open(os.path.join(current_dir, filename), mode="r", encoding="utf-8") as fp:
+            for line in fp:
+                if not line.strip() or line.startswith("#"):
+                    continue  # Skip empty lines or lines that are comments (comments start with '#')
+                # Format: Start Code..End Code; Block Name
+                block_range, block_name = line.strip().split(";")
+                start_range, end_range = block_range.strip().split("..")
+                self._unicode_blocks[six.moves.range(int(start_range, 16), int(end_range, 16) + 1)] = block_name.strip()
+
+    def get(self, value):
+        """
+        Function for retrieving the Unicode Block name associated with the specified Unicode scalar value.
+
+        :param value: Unicode scalar value to look up.
+        :return: Unicode Block name associated with the specified value.
+        """
+        return self.__getitem__(value)
+
+    def __getitem__(self, item):
+        """
+        Function for retrieving the Unicode Block name associated with the specified Unicode scalar value.
+
+        :param item: Unicode scalar value to look up.
+        :return: Unicode Block name associated with the specified value.
+        """
+        for block_range, name in self._unicode_blocks.items():
+            if item in block_range:
+                return name
+        return u"No_Block"
+
+    def lookup_by_char(self, c):
+        """
+        Function for retrieving the Unicode Block name associated with the specified Unicode character.
+
+        :param c: Unicode character to look up.
+        :return: Unicode Block name associated with the specified Unicode character.
+        """
+        return self.__getitem__(_to_unicode_scalar_value(c))
+
+
 class CaseFoldingMap:
     """Class for performing Unicode case folding."""
 
