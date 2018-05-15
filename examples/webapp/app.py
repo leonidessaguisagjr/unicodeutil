@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 
+import collections
 import os.path
 import re
 
 from flask import Flask, abort, jsonify, make_response, redirect, render_template, request, url_for
 
-from unicodeutil import UnicodeData, casefold, UNIDATA_VERSION
+from unicodeutil import UnicodeBlocks, UnicodeData, casefold, UNIDATA_VERSION
 from unicodeutil.unicodeutil import _unichr
 
 app = Flask(__name__)
@@ -16,6 +17,7 @@ api_base_url = "/{0}/api/{1}/".format(appname, api_version)
 ui_base_url = "/{0}/".format(appname)
 ucd_base_url = "{0}ucd/".format(ui_base_url)
 ucd = UnicodeData()
+blocks = UnicodeBlocks()
 
 
 @app.errorhandler(404)
@@ -86,8 +88,11 @@ def charinfo_html(lookup):
     char_info = ucd[lookup_value]
     if not char_info:
         abort(404)
+    supplemental_info = collections.OrderedDict()
+    # supplemental_info["html_id"] = ("Display Name", value)
+    supplemental_info["Block_Name"] = ("Block Name", blocks[lookup_value])
     return render_template("charinfo_template.html", char=_unichr(lookup_value), char_info=char_info._asdict(),
-                           ucd_ver=UNIDATA_VERSION)
+                           supplemental_info=supplemental_info, ucd_ver=UNIDATA_VERSION)
 
 
 if __name__ == "__main__":

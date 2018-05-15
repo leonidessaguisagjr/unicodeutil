@@ -4,5 +4,5 @@ itsdangerous==0.24
 Jinja2==2.10
 MarkupSafe==1.0
 six==1.11.0
-unicodeutil==0.1.dev7
+unicodeutil==0.1.dev8
 Werkzeug==0.14.1

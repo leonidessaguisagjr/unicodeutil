@@ -102,6 +102,15 @@ input[type=submit] {
   min-width: 200px;
 }
 
+.supp_data_key {
+  min-width: 200px;
+  text-align: right;
+}
+
+.supp_data_value {
+  min-width: 200px;
+}
+
 table {
   background-color: #b6dbf6;
   font-family: monospace;

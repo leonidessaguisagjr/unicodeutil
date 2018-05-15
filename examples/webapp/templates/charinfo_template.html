@@ -32,6 +32,15 @@
     {% endfor %}
   </table>
   <p class="footer_text centered_text">(*) See the <a href="https://www.unicode.org/reports/tr44/#UnicodeData.txt">UnicodeData.txt section in Unicode&reg; Standard Annex #44</a> for more information on the various properties.</p>
+  <table class="centered" id="supplemental_data_table">
+    <caption>Supplemental character data</caption>
+    {% for k, v in supplemental_info.items() %}
+    <tr>
+      <th class="supp_data_key" id="supp_data_key_{{ k }}">{{ v[0] }}</th>
+      <td class="supp_data_value" id="supp_data_value_{{ k }}">{{ v[1] }}</td>
+    </tr>
+    {% endfor %}
+  </table>
   <hr />
   <p class="footer_text centered_text">Character data from Unicode® Character Database (UCD) v{{ ucd_ver }}.  See the <a href="https://unicode.org">Unicode&reg; Consortium website</a> for more information.</p>
 </body>
