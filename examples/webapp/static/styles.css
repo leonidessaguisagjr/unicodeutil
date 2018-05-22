@@ -1,6 +1,6 @@
 body {
   background-color: #e3f2fc;
-  font-family: sans-serif;
+  font-family: 'Noto Sans', sans-serif;
 }
 
 hr {
@@ -65,11 +65,11 @@ input[type=submit] {
 }
 
 .serif {
-  font-family: serif;
+  font-family: 'Noto Serif', serif;
 }
 
 .sans-serif {
-  font-family: sans-serif;
+  font-family: 'Noto Sans', sans-serif;
 }
 
 .footer_text {

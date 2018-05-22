@@ -1,4 +1,4 @@
-from collections import defaultdict, namedtuple
+from collections import defaultdict, namedtuple, OrderedDict
 from fractions import Fraction
 import codecs
 import os
@@ -262,6 +262,20 @@ class UnicodeData:
                 uc_data = UnicodeCharacter(u"U+" + data[0], *data[1:])
                 self._unicode_character_database[int(data[0], 16)] = uc_data
                 self._name_database[lookup_name] = uc_data
+        # Fill out the "compressed" ranges of UnicodeData.txt i.e. fill out the remaining characters per the Name
+        # Derivation Rules.  See the Unicode Standard, ch. 4, section 4.8, Unicode Name Property
+        for lookup_range, prefix_string in _nr_prefix_strings.items():
+            exemplar = self._unicode_character_database.__getitem__(lookup_range[0])
+            for item in lookup_range:
+                hex_code = _padded_hex(item)
+                new_name = prefix_string
+                if prefix_string.startswith("HANGUL SYLLABLE"):  # For Hangul, use naming rule NR1
+                    new_name += _get_hangul_syllable_name(item)
+                else:  # Everything else uses naming rule NR2
+                    new_name += hex_code
+                uc_data = exemplar._replace(code=u"U+" + hex_code, name=new_name)
+                self._unicode_character_database[item] = uc_data
+                self._name_database[_uax44lm2transform(new_name)] = uc_data
 
     def get(self, value):
         """
@@ -279,29 +293,15 @@ class UnicodeData:
         :param item: Unicode scalar value to look up.
         :return: UnicodeCharacter instance with data associated with the specified value.
         """
-        try:
-            return self._unicode_character_database.__getitem__(item)
-        except KeyError:
-            # Not all of the code points are individually listed in the UnicodeData.txt file.  If our initial attempt at
-            # lookup fails, let's see if we are in the "compressed" ranges of UnicodeData.txt and if so we will try
-            # inferring the correct UnicodeCharacter by using the Name Derivation Rules.
-            # See the Unicode Standard, ch. 4, section 4.8, Unicode Name Property
-            for lookup_range, prefix_string in _nr_prefix_strings.items():
-                if item in lookup_range:
-                    hex_code = _padded_hex(item)
-                    new_name = prefix_string
-                    if prefix_string.startswith("HANGUL SYLLABLE"):  # For Hangul, we should use naming rule NR1
-                        new_name += _get_hangul_syllable_name(item)
-                    else:  # Everything else uses naming rule NR2
-                        new_name += hex_code
-                    exemplar = self._unicode_character_database.__getitem__(lookup_range[0])
-                    # The properties in the ranges are uniform, so all we need to change is the code and the name.
-                    return exemplar._replace(code=u"U+"+hex_code, name=new_name)
-            raise
+        return self._unicode_character_database.__getitem__(item)
 
     def __iter__(self):
         """Function for iterating through the keys of the data."""
         return self._unicode_character_database.__iter__()
+
+    def __len__(self):
+        """Function for returning the size of the data."""
+        return self._unicode_character_database.__len__()
 
     def items(self):
         """
@@ -388,7 +388,7 @@ class UnicodeBlocks:
 
     def __init__(self):
         """Initialize the class by loading the Unicode block info."""
-        self._unicode_blocks = {}
+        self._unicode_blocks = OrderedDict()
         self._load_unicode_block_info()
 
     def _load_unicode_block_info(self):
@@ -428,6 +428,30 @@ class UnicodeBlocks:
             if item in block_range:
                 return name
         return u"No_Block"
+
+    def items(self):
+        """
+        Returns a list of the data's (key, value) pairs, as tuples.
+
+        :return: list of (key, value) pairs, as tuples.
+        """
+        return self._unicode_blocks.items()
+
+    def keys(self):
+        """
+        Returns a list of the data's keys.
+
+        :return: list of the data's keys
+        """
+        return self._unicode_blocks.keys()
+
+    def values(self):
+        """
+        Returns a list of the data's values.
+
+        :return: list of the data's values.
+        """
+        return self._unicode_blocks.values()
 
     def lookup_by_char(self, c):
         """

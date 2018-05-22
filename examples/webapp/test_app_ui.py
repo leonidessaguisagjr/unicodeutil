@@ -63,6 +63,9 @@ class TestUnicodeDataWebApp(unittest.TestCase):
         self.browser.get(ucd_url)
         search_text_input = self.browser.find_element_by_id("search_text_input")
         search_text_input.send_keys(search_name)
+        use_partial_name = self.browser.find_element_by_id("use_partial_name")
+        if use_partial_name.is_selected():
+            use_partial_name.click()
         lookup_by_name = self.browser.find_element_by_id("lookup_by_name")
         lookup_by_name.click()
         page_title = self.browser.find_element_by_id("page_title")
@@ -79,6 +82,9 @@ class TestUnicodeDataWebApp(unittest.TestCase):
         self.browser.get(ucd_url)
         search_text_input = self.browser.find_element_by_id("search_text_input")
         search_text_input.send_keys(search_name)
+        use_partial_name = self.browser.find_element_by_id("use_partial_name")
+        if use_partial_name.is_selected():
+            use_partial_name.click()
         lookup_by_name = self.browser.find_element_by_id("lookup_by_name")
         lookup_by_name.click()
         self.assertEqual(expected_error_text, self.browser.title)

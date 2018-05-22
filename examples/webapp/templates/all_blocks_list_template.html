@@ -1,0 +1,33 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Unicode&reg; Blocks list</title>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}"/>
+  <link href="https://fonts.googleapis.com/css?family=Noto+Sans" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Noto+Serif" rel="stylesheet">
+</head>
+<body>
+  <h1 class="centered_text" id="page_title">Unicode&reg; Blocks list</h1>
+  <table class="centered" id="block_list_table">
+    <tr>
+      <th>Block start</th>
+      <th>Block end</th>
+      <th>Block name</th>
+    </tr>
+    {% for k, v in blocks.items() %}
+    <tr>
+      <td>
+        <a href="{{ "%04X" % k[0] }}">{{ "U+%04X" % k[0] }}</a>
+      </td>
+      <td>
+        <a href="{{ "%04X" % k[-1] }}">{{ "U+%04X" % k[-1] }}</a>
+      </td>
+      <td>
+        <a href="blocks/{{ v.lower().replace(" ", "-") }}">{{ v }}</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+</body>
+</html>

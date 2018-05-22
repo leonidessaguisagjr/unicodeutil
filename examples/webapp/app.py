@@ -95,5 +95,24 @@ def charinfo_html(lookup):
                            supplemental_info=supplemental_info, ucd_ver=UNIDATA_VERSION)
 
 
+@app.route(ucd_base_url + "blocks", methods=['GET'])
+def all_blocks_list_html():
+    return render_template("all_blocks_list_template.html", blocks=blocks)
+
+
+@app.route(ucd_base_url + "blocks/" + "<block_name>", methods=['GET'])
+def block_list_html(block_name):
+    for k, v in blocks.items():
+        if block_name == v.lower().replace(" ", "-"):
+            chars = []
+            for item in k:
+                try:
+                    chars.append(tuple([item, ucd[item].name]))
+                except KeyError:
+                    continue
+            return render_template("block_list_template.html", chars=chars, block_name=v)
+    abort(404)
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True)

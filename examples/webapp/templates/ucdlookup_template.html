@@ -4,12 +4,17 @@
   <meta charset="utf-8"/>
   <title>Unicode&reg; Character Database lookup</title>
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}"/>
+  <link href="https://fonts.googleapis.com/css?family=Noto+Sans" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Noto+Serif" rel="stylesheet">
 </head>
 <body>
-  <h1 class="centered_text">Unicode&reg; Character Database lookup</h1>
+  <h1 class="centered_text" id="page_title">Unicode&reg; Character Database lookup</h1>
   <hr />
   <div class="lookup_box dotted_border">
     <h2 class="centered_text lookup_box_header">Lookup</h2>
+    <p class="centered_text">
+      Use this page to search for a Unicode&reg; character by code point or name.  To view/browse by Unicode&reg; block, go <a href="{{ url_for('all_blocks_list_html') }}">here</a>.
+    </p>
     <hr />
     <form class="centered_text" method="post">
       <div>
