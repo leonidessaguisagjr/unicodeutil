@@ -15,8 +15,8 @@ COPY templates/* /ucdwebapp/templates/
 # Run pip to install the required packages
 RUN pip install --no-cache-dir --trusted-host=pypi.python.org -r requirements.txt
 
-# Unblock the default port for Flask
-EXPOSE 5000
+# Unblock port 8080
+EXPOSE 8080
 
-# Start the Flask app
-ENTRYPOINT ["pypy3", "app.py"]
+# Start the web app
+ENTRYPOINT ["gunicorn", "--bind=:8080", "app:app"]
