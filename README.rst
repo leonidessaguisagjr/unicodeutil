@@ -99,7 +99,7 @@ Using Python 2::
 Using the latest Unicode® Character Database (UCD)
 --------------------------------------------------
 
-As of Python 2.7.15, the `unicodedata <https://docs.python.org/2/library/unicodedata.html>`_ module is still using data from version 5.2.0 of the UCD.  The UCD is currently up to version 10.0.0.
+As of Python 2.7.15, the `unicodedata <https://docs.python.org/2/library/unicodedata.html>`_ module is still using data from version 5.2.0 of the UCD.  The UCD is `currently up to version 11.0.0 <http://blog.unicode.org/2018/06/announcing-unicode-standard-version-110.html>`_.
 
 The ``UnicodeCharacter`` namedtuple encapsulates the various properties associated with each Unicode® character, as explained in `Unicode Standard Annex #44, UnicodeData.txt <https://www.unicode.org/reports/tr44/#UnicodeData.txt>`_.
 
@@ -215,4 +215,4 @@ License
 
 This is released under an MIT license.  See the ``LICENSE`` file in this repository for more information.
 
-The included ``CaseFolding.txt``, ``HangulSyllableType.txt``, ``Jamo.txt`` and ``UnicodeData.txt`` files are part of the Unicode® Character Database that is published by Unicode, Inc.  Please consult the `Unicode® Terms of Use <https://www.unicode.org/copyright.html>`_ prior to use.
+The included ``Blocks.txt``, ``CaseFolding.txt``, ``HangulSyllableType.txt``, ``Jamo.txt`` and ``UnicodeData.txt`` files are part of the Unicode® Character Database that is published by Unicode, Inc.  Please consult the `Unicode® Terms of Use <https://www.unicode.org/copyright.html>`_ prior to use.
