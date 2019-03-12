@@ -99,7 +99,7 @@ Using Python 2::
 Using the latest Unicode® Character Database (UCD)
 --------------------------------------------------
 
-As of Python 2.7.15, the `unicodedata <https://docs.python.org/2/library/unicodedata.html>`_ module is still using data from version 5.2.0 of the UCD.  The UCD is `currently up to version 11.0.0 <http://blog.unicode.org/2018/06/announcing-unicode-standard-version-110.html>`_.
+As of Python 2.7.1666666, the `unicodedata <https://docs.python.org/2/library/unicodedata.html>`_ module is still using data from version 5.2.0 of the UCD.  The UCD is `currently up to version 12.0.0 <http://blog.unicode.org/2019/03/announcing-unicode-standard-version-120.html>`_.
 
 The ``UnicodeCharacter`` namedtuple encapsulates the various properties associated with each Unicode® character, as explained in `Unicode Standard Annex #44, UnicodeData.txt <https://www.unicode.org/reports/tr44/#UnicodeData.txt>`_.
 
