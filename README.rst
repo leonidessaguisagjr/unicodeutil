@@ -1,6 +1,14 @@
 ``unicodeutil``
 ===============
 
+.. image:: https://img.shields.io/pypi/v/unicodeutil.svg
+        :target: https://pypi.python.org/pypi/unicodeutil
+
+.. image:: https://img.shields.io/travis/leonidessaguisagjr/unicodeutil.svg
+        :target: https://travis-ci.org/leonidessaguisagjr/unicodeutil
+
+
+
 Python classes and functions for working with Unicode® data.  This was initially built with Python 2 in mind but has also been tested with Python 3, PyPy and PyPy3.
 
 
