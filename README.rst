@@ -107,7 +107,7 @@ Using Python 2::
 Using the latest Unicode® Character Database (UCD)
 --------------------------------------------------
 
-As of Python 2.7.17, the `unicodedata <https://docs.python.org/2/library/unicodedata.html>`_ module is still using data from version 5.2.0 of the UCD.  Python 3 releases prior to the 3.8.x line are also still not on the latest version of the UCD e.g. in Python 3.7.6, the `unicodedata <https://docs.python.org/3.7/library/unicodedata.html>`_ module is still using data from version 11.0.0 of the UCD  The UCD is `currently up to version 12.1.0 <http://blog.unicode.org/2019/05/unicode-12-1-en.html>`_.
+For the Python 2.7.x line, the `unicodedata module in Python 2.7.17 <https://docs.python.org/2/library/unicodedata.html>`_ is still using data from version 5.2.0 of the UCD.  Python 3 releases prior to the 3.8.x line are also still not on the latest version of the UCD e.g. the `unicodedata module in Python 3.7.6 <https://docs.python.org/3.7/library/unicodedata.html>`_ is still using data from version 11.0.0 of the UCD  The UCD is `currently up to version 12.1.0 <http://blog.unicode.org/2019/05/unicode-12-1-en.html>`_.
 
 The ``UnicodeCharacter`` namedtuple encapsulates the various properties associated with each Unicode® character, as explained in `Unicode Standard Annex #44, UnicodeData.txt <https://www.unicode.org/reports/tr44/#UnicodeData.txt>`_.
 
