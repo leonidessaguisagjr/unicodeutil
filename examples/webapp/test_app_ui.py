@@ -9,7 +9,7 @@ from selenium import webdriver
 from unicodeutil import UnicodeBlocks, UnicodeData
 
 
-base_url = "http://localhost:5000/"
+base_url = "http://localhost:8080/"
 ucd_url = base_url + "unicodeutil/ucd/"
 ucd = UnicodeData()
 unicode_blocks = UnicodeBlocks()
@@ -32,7 +32,12 @@ def get_http_response(url):
 class TestUnicodeDataWebApp(unittest.TestCase):
 
     def setUp(self):
-        self.browser = webdriver.Chrome()
+        # options = webdriver.ChromeOptions()
+        # options.add_argument("--headless")
+        # self.browser = webdriver.Chrome(options=options)
+        options = webdriver.FirefoxOptions()
+        options.add_argument("-headless")
+        self.browser = webdriver.Firefox(options=options)
 
     def tearDown(self):
         self.browser.quit()

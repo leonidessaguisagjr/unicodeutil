@@ -8,7 +8,7 @@ import unittest
 from unicodeutil import UnicodeData, casefold
 
 
-base_url = "http://localhost:5000/unicodeutil/api/v1.0/"
+base_url = "http://localhost:8080/unicodeutil/api/v1.0/"
 headers = {"Accept": "application/json", "Content-Type": "application/json"}
 ucd = UnicodeData()
 
