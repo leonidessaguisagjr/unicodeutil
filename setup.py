@@ -10,7 +10,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(name='unicodeutil',
-      version='12.0.dev1',
+      version='12.1.dev1',
       description='Classes and functions for working with Unicode data.',
       long_description=long_description,
       long_description_content_type='text/x-rst',
@@ -24,6 +24,7 @@ setup(name='unicodeutil',
             "Programming Language :: Python :: 3",
             "Programming Language :: Python :: 3.6",
             "Programming Language :: Python :: 3.7",
+            "Programming Language :: Python :: 3.8",
             "Topic :: Software Development :: Internationalization",
             "Topic :: Software Development :: Libraries",
             "Topic :: Text Processing",
