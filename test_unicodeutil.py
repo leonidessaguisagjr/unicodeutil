@@ -182,7 +182,7 @@ class TestUnicodeBlocks(unittest.TestCase):
 
     def test_noblock(self):
         """Test that attempting to lookup an undefined character generates a 'No_Block'."""
-        self.assertEqual(u"No_Block", self.blocks[0x30000])
+        self.assertEqual(u"No_Block", self.blocks[0x31350])
 
 
 class TestCasefold(unittest.TestCase):
