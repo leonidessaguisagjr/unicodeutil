@@ -7,7 +7,7 @@ except ImportError:
     from .hangulutil import compose_hangul_syllable, decompose_hangul_syllable
     from .unicodeutil import CaseFoldingMap, UnicodeBlocks, UnicodeData, casefold, preservesurrogates  # Python 3 style import
 
-UNIDATA_VERSION = "13.0.0"  # Version number of Unicode character data
+UNIDATA_VERSION = "14.0.0"  # Version number of Unicode character data
 
 __all__ = ["CaseFoldingMap", "UnicodeBlocks", "UnicodeData", "casefold", "compose_hangul_syllable", "decompose_hangul_syllable",
            "preservesurrogates", "UNIDATA_VERSION"]
