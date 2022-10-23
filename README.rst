@@ -4,8 +4,8 @@
 .. image:: https://img.shields.io/pypi/v/unicodeutil.svg
         :target: https://pypi.python.org/pypi/unicodeutil
 
-.. image:: https://img.shields.io/travis/leonidessaguisagjr/unicodeutil.svg
-        :target: https://travis-ci.org/leonidessaguisagjr/unicodeutil
+.. image:: https://img.shields.io/github/workflow/status/leonidessaguisagjr/unicodeutil/Python%20unicodeutil
+        :target: https://github.com/leonidessaguisagjr/unicodeutil/actions/workflows/python-app.yml
 
 
 
